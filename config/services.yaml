@@ -312,6 +312,14 @@ services:
             $enabled: '%env(bool:PROVIDER_LCSC_ENABLED)%'
             $currency: '%env(string:PROVIDER_LCSC_CURRENCY)%'
 
+    App\Services\InfoProviderSystem\Providers\TIProvider:
+        arguments:
+            $clientId: '&env(string:PROVIDER_TI_CLIENT_ID)%'
+            $secret: '%env(string:PROVIDER_TI_SECRET)%'
+            $country: '%env(string:PROVIDER_TI_COUNTRY)%'
+            $currency: '%env(string:PROVIDER_TI_CURRENCY)%'
+            $language: '%env(string:PROVIDER_TI_LANGUAGE)%'
+
     ####################################################################################################################
     # API system
     ####################################################################################################################
