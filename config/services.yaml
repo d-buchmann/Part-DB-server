@@ -307,6 +307,14 @@ services:
             $options: '%env(string:PROVIDER_MOUSER_SEARCH_OPTION)%'
             $search_limit: '%env(int:PROVIDER_MOUSER_SEARCH_LIMIT)%'
 
+    App\Services\InfoProviderSystem\Providers\TIProvider:
+        arguments:
+            $clientId: '&env(string:PROVIDER_TI_CLIENT_ID)%'
+            $secret: '%env(string:PROVIDER_TI_SECRET)%'
+            $country: '%env(string:PROVIDER_TI_COUNTRY)%'
+            $currency: '%env(string:PROVIDER_TI_CURRENCY)%'
+            $language: '%env(string:PROVIDER_TI_LANGUAGE)%'
+
     ####################################################################################################################
     # API system
     ####################################################################################################################
