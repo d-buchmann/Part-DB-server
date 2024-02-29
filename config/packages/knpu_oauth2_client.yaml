@@ -36,3 +36,19 @@ knpu_oauth2_client:
                 urlAuthorize: 'https://identity.nexar.com/connect/authorize'
                 urlAccessToken: 'https://identity.nexar.com/connect/token'
                 urlResourceOwnerDetails: ''
+
+        ip_ti_oauth:
+            type: generic
+            provider_class: '\League\OAuth2\Client\Provider\GenericProvider'
+
+            client_id: '%env(PROVIDER_TI_CLIENT_ID)%'
+            client_secret: '%env(PROVIDER_TI_SECRET)%'
+
+            redirect_route: 'oauth_client_check'
+            redirect_params: { name: 'ip_ti_oauth' }
+
+            provider_options:
+                urlAuthorize: 'https://transact.ti.com/v1/oauth'
+                urlAccessToken: 'https://transact.ti.com/v1/oauth/accesstoken'
+                urlResourceOwnerDetails: ''
+
