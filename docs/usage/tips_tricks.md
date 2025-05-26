@@ -80,11 +80,23 @@ If you want to force your users to add comments to certain operations, you can d
 the `ENFORCE_CHANGE_COMMENTS_FOR` option.
 See the configuration reference for more information.
 
+## Part filters
+
+You can do basic filtering of parts by the following core data sources:
+- Category
+- Supplier
+- Manufacturer
+- Storage location
+- Footprint
+
+Additionally, on a parts data table there is a drop-down filter at the top. There you can specify extra filters for every part property.
+Multiple filters are combined by logic AND.
+
 ## Personal stocks and stock locations
 
-For maker spaces and universities with a lot of users, where each user can have his own stock, which only he should be
+For maker spaces and universities with a lot of users, where each user can have their own stock, which only they should be
 able to access, you can assign
-the user as "owner" of a part lot. This way, only he is allowed to add or remove parts from this lot.
+the user as "owner" of a part lot. Now, only this user is allowed to add or remove parts from this specific lot.
 
 ## Update notifications
 
