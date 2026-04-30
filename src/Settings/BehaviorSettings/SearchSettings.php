@@ -30,8 +30,8 @@ use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Symfony\Component\Translation\TranslatableMessage as TM;
 
 #[Settings(name: "search", label: new TM("settings.behavior.search"))]
-#[SettingsIcon('fa-search')]
-class KeybindingsSettings
+#[SettingsIcon('fa-magnifying-glass')]
+class SearchSettings
 {
     /**
      * Whether to enable advanced search
