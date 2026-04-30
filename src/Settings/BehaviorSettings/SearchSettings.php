@@ -43,5 +43,31 @@ class KeybindingsSettings
         envVar: "bool:ENABLE_ADVANCED_SEARCH", 
         envVarMode: EnvVarMode::OVERWRITE
     )]
-    public bool $enableAdvancedSearch = true;
+    public bool $enableAdvancedSearch = false;
+    
+    /**
+     * Defines the maximum number of tokens the keyword can be split up to
+     * @var bool
+     */
+    #[SettingsParameter(
+        label: new TM("settings.behavior.search.token_limit"), 
+        description: new TM("settings.behavior.search.token_limit.help"),
+        envVar: "int:SEARCH_TOKEN_LIMIT", 
+        envVarMode: EnvVarMode::OVERWRITE,
+        formOptions: ['attr' => ['min' => 2, 'max' => 10]],
+    )]
+    #[Assert\Range(min: 2, max: 10)]
+    public int $searchTokenLimit = 3;
+    
+    /**
+     * Whether to escape sql wildcards
+     * @var bool
+     */
+    #[SettingsParameter(
+        label: new TM("settings.behavior.search.escape_sql_wildcards"), 
+        description: new TM("settings.behavior.search.escape_sql_wildcards.help"),
+        envVar: "bool:ESCAPE_SQL_WILDCARDS", 
+        envVarMode: EnvVarMode::OVERWRITE
+    )]
+    public bool $escapeSQLWildcards = true;
 }
