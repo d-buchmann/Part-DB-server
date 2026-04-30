@@ -2,7 +2,7 @@
 /*
  * This file is part of Part-DB (https://github.com/Part-DB/Part-DB-symfony).
  *
- *  Copyright (C) 2019 - 2024 Jan Böhmer (https://github.com/jbtronics)
+ *  Copyright (C) 2019 - 2025 Jan Böhmer (https://github.com/jbtronics)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as published
@@ -23,28 +23,25 @@ declare(strict_types=1);
 
 namespace App\Settings\BehaviorSettings;
 
-use Jbtronics\SettingsBundle\Settings\EmbeddedSettings;
+use App\Settings\SettingsIcon;
+use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\Settings\Settings;
-use Jbtronics\SettingsBundle\Settings\SettingsTrait;
+use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Symfony\Component\Translation\TranslatableMessage as TM;
 
-#[Settings(label: new TM("settings.behavior"))]
-class BehaviorSettings
+#[Settings(name: "search", label: new TM("settings.behavior.search"))]
+#[SettingsIcon('fa-search')]
+class KeybindingsSettings
 {
-    use SettingsTrait;
-
-    #[EmbeddedSettings]
-    public ?SidebarSettings $sidebar = null;
-
-    #[EmbeddedSettings]
-    public ?TableSettings $table = null;
-
-    #[EmbeddedSettings]
-    public ?PartInfoSettings $partInfo = null;
-
-    #[EmbeddedSettings]
-    public ?KeybindingsSettings $keybindings = null;
-
-    #[EmbeddedSettings]
-    public ?SearchSettings $search = null;
+    /**
+     * Whether to enable advanced search
+     * @var bool
+     */
+    #[SettingsParameter(
+        label: new TM("settings.behavior.search.enable_advanced_search"), 
+        description: new TM("settings.behavior.search.enable_advanced_search.help"),
+        envVar: "bool:ENABLE_ADVANCED_SEARCH", 
+        envVarMode: EnvVarMode::OVERWRITE
+    )]
+    public bool $enableAdvancedSearch = true;
 }
