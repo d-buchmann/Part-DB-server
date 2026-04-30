@@ -128,7 +128,7 @@ class PartSearchFilter implements FilterInterface
     public function apply(QueryBuilder $queryBuilder): void
     {
         $fields_to_search = $this->getFieldsToSearch();
-        $tokens = []
+        $tokens = [];
 
         if ($searchSettings->enableAdvancedSearch) {
             //Transform keyword and trim excess spaces
