@@ -187,14 +187,14 @@ class PartSearchFilter implements FilterInterface
                         $token = str_replace(['%', '_'], ['\%', '\_'], $token);
 
                     //Convert the fields to search to a list of expressions
-                    $expressions = array_map(function (string $field, int $i): string {
-                        return sprintf("ILIKE(%s, :search_query%u) = TRUE", $field, $i);
-                    }, $fields_to_search);
+                    $tmp = array_fill_keys($fields_to_search, $i);
+                    $expressions = array_map(function (string $field, int $idx): string {
+                        return sprintf("ILIKE(%s, :search_query%u) = TRUE", $field, $idx);
+                    }, array_keys($tmp), array_values($tmp));
 
                     //Aggregate the parameters for consolidated commission
                     //For like, we add % to the start and end as wildcards
-                    $params[] = new Parameter(
-                        'search_query' . $i, '%' . $token . '%');
+                    $params[] = new Parameter('search_query' . $i, '%' . $token . '%');
                     //Use equal expression to search for exact numeric matches
                     if ($search_dbId && preg_match('/^\d+$/', $token) === 1) {
                         $expressions[] = $queryBuilder->expr()->eq('part.id', ':id_exact' . $i);
