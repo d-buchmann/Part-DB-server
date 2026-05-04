@@ -76,9 +76,9 @@ class PartSearchFilter implements FilterInterface
 
     public function __construct(
         /** @var string The string to query for */
-        protected string $keyword
-    )
-    {
+        protected string $keyword,
+        private readonly SearchSettings $searchSettings,
+    ) {
     }
 
     protected function getFieldsToSearch(): array
@@ -143,7 +143,7 @@ class PartSearchFilter implements FilterInterface
             //retaining the original search behavior
             $tokens[] = $keyword;
         }
-        
+
         // Detect if any of the keyword tokens is numeric
         $is_numeric = false;
         foreach ($tokens as $token) {
@@ -185,9 +185,9 @@ class PartSearchFilter implements FilterInterface
                     //Conditionally escape % and _ characters
                     if ($searchSettings->escapeSQLWildcards)
                         $current_token = str_replace(['%', '_'], ['\%', '\_'], $current_token);
-                    
+
                     $this->it = $i;
-                    
+
                     //Convert the fields to search to a list of expressions
                     $expressions = array_map(function (string $field): string {
                         return sprintf("ILIKE(%s, :search_query%u) = TRUE",
