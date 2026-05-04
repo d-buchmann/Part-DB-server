@@ -80,6 +80,7 @@ class PartSearchFilter implements FilterInterface
         /** @var SearchSettings The settings that control how the search operates */
         private readonly SearchSettings $searchSettings,
     ) {
+
     }
 
     protected function getFieldsToSearch(): array
@@ -132,20 +133,20 @@ class PartSearchFilter implements FilterInterface
         $tokens = [];
 
         // Detect if the keyword is purely numeric
-        $is_numeric = (preg_match('/^\d+$/', $keyword) === 1);
+        $is_numeric = (preg_match('/^\d+$/', $this->keyword) === 1);
 
-        if ($searchSettings->enableAdvancedSearch) {
+        if ($this->searchSettings->enableAdvancedSearch) {
             //Transform keyword and trim excess spaces
-            $keyword = trim(str_replace('+', ' ', $keyword));
+            $this->keyword = trim(str_replace('+', ' ', $this->keyword));
             //Split keyword on spaces, but limit token count
-            $tokens = explode(' ', $this->keyword, $searchSettings->searchTokenLimit);
+            $tokens = explode(' ', $this->keyword, $this->searchSettings->searchTokenLimit);
             //Throw away array elements with string length zero (including null)
             $tokens = array_filter($tokens, 'strlen');
         }
         else {
             //Pass the whole keyword into the (empty) tokens array as is,
             //retaining the original search behavior
-            $tokens[] = $keyword;
+            $tokens[] = $this->keyword;
         }
 
         // Add exact ID match only when the keyword is numeric
