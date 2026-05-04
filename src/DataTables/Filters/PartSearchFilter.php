@@ -179,7 +179,7 @@ class PartSearchFilter implements FilterInterface
                }
             } else {
                 //Add a new expression and parameter set to the query for each token
-                foreach ($tokens as $token) {
+                foreach ($tokens as $i => $token) {
                     //Conditionally escape % and _ characters
                     if ($this->searchSettings->escapeSQLWildcards)
                         $token = str_replace(['%', '_'], ['\%', '\_'], $token);
