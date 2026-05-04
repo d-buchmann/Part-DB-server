@@ -145,7 +145,7 @@ class PartSearchFilter implements FilterInterface
             //Split keyword on spaces, but limit token count (default is 3)
             $tokens = explode(' ', $this->keyword, $this->searchSettings->searchTokenLimit);
             //Throw away array elements which are null or have zero length
-            $tokens = array_filter($tokens, fn($x) => strlen($x));
+            $tokens = array_filter($tokens, fn($x) => (strlen($x) > 0));
         }
         else {
             //Pass the whole keyword into the (empty) tokens array as is,
