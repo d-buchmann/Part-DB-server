@@ -317,7 +317,7 @@ class PartListsController extends AbstractController
 
     private function searchRequestToFilter(Request $request): PartSearchFilter
     {
-        $filter = new PartSearchFilter($request->query->get('keyword', ''), $searchSettings);
+        $filter = new PartSearchFilter($request->query->get('keyword', ''), $this->searchSettings);
 
         //As an unchecked checkbox is not set in the query, the default value for all bools have to be false (which is the default argument value)!
         $filter->setName($request->query->getBoolean('name'));
