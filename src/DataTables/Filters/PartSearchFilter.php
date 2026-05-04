@@ -131,6 +131,10 @@ class PartSearchFilter implements FilterInterface
 
     public function apply(QueryBuilder $queryBuilder): void
     {
+        //Early return if there is no keyword
+        if ($this->keyword === '')
+            return;
+
         $fields_to_search = $this->getFieldsToSearch();
         $tokens = [];
 
@@ -139,11 +143,6 @@ class PartSearchFilter implements FilterInterface
 
         // Add exact ID match only when the keyword is numeric
         $search_dbId = $is_numeric && (bool)$this->dbId;
-
-        //If we have nothing to search for, do nothing
-        if (($fields_to_search === [] && !$search_dbId) || $this->keyword === '') {
-            return;
-        }
 
         if ($this->searchSettings->enableAdvancedSearch) {
             //Transform keyword and trim excess spaces
@@ -162,7 +161,10 @@ class PartSearchFilter implements FilterInterface
         $params = [];
         $expressions = [];
 
-        if($fields_to_search !== []) {
+         //If we have nothing to search for, do nothing
+        if ($fields_to_search === [] && !$search_dbId) {
+            return;
+        } else {
             //For regex, we pass the query as is
             if ($this->regex) {
                 //Convert the fields to search to a list of expressions
