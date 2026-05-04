@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace App\DataTables\Filters;
 use App\DataTables\Filters\Constraints\AbstractConstraint;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\DBAL\ParameterType;
 use App\Settings\BehaviorSettings\SearchSettings;
 
@@ -135,13 +136,16 @@ class PartSearchFilter implements FilterInterface
         // Detect if the keyword is purely numeric
         $is_numeric = (preg_match('/^\d+$/', $this->keyword) === 1);
 
-        if ($this->searchSettings->enableAdvancedSearch) {
+        // Add exact ID match only when the keyword is numeric
+        $search_dbId = $is_numeric && (bool)$this->dbId;
+
+        if ($this->searchSettings->enableAdvancedSearch)
             //Transform keyword and trim excess spaces
             $this->keyword = trim(str_replace('+', ' ', $this->keyword));
-            //Split keyword on spaces, but limit token count
+            //Split keyword on spaces, but limit token count (default is 3)
             $tokens = explode(' ', $this->keyword, $this->searchSettings->searchTokenLimit);
-            //Throw away array elements with string length zero (including null)
-            $tokens = array_filter($tokens, 'strlen');
+            //Throw away array elements which are null or have zero length
+            $tokens = array_filter($tokens, fn($x) => strlen($x));
         }
         else {
             //Pass the whole keyword into the (empty) tokens array as is,
@@ -149,10 +153,7 @@ class PartSearchFilter implements FilterInterface
             $tokens[] = $this->keyword;
         }
 
-        // Add exact ID match only when the keyword is numeric
-        $search_dbId = $is_numeric && (bool)$this->dbId;
-
-        //If we have nothing to search for, do nothing
+       //If we have nothing to search for, do nothing
         if (($fields_to_search === [] && !$search_dbId) || $this->keyword === '') {
             return;
         }
@@ -167,7 +168,7 @@ class PartSearchFilter implements FilterInterface
                 $expressions = array_map(function (string $field): string {
                         return sprintf("REGEXP(%s, :search_query) = TRUE", $field);
                 }, $fields_to_search);
-                $params[] = new \Doctrine\ORM\Query\Parameter('search_query', $this->keyword);
+                $params[] = new Parameter('search_query', $this->keyword);
                 //Guard condition
                 if (!empty($expressions)) {
                     //Add Or concatenation of the expressions to our query
@@ -180,7 +181,7 @@ class PartSearchFilter implements FilterInterface
                 for ($i = 0; $i < sizeof($tokens); $i++) {
                     $current_token = $tokens[$i];
                     //Conditionally escape % and _ characters
-                    if ($searchSettings->escapeSQLWildcards)
+                    if ($this->searchSettings->escapeSQLWildcards)
                         $current_token = str_replace(['%', '_'], ['\%', '\_'], $current_token);
 
                     $this->it = $i;

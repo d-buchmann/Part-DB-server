@@ -28,6 +28,7 @@ use Jbtronics\SettingsBundle\Metadata\EnvVarMode;
 use Jbtronics\SettingsBundle\Settings\Settings;
 use Jbtronics\SettingsBundle\Settings\SettingsParameter;
 use Symfony\Component\Translation\TranslatableMessage as TM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[Settings(name: "search", label: new TM("settings.behavior.search"))]
 #[SettingsIcon('fa-magnifying-glass')]
@@ -38,35 +39,35 @@ class SearchSettings
      * @var bool
      */
     #[SettingsParameter(
-        label: new TM("settings.behavior.search.enable_advanced_search"), 
+        label: new TM("settings.behavior.search.enable_advanced_search"),
         description: new TM("settings.behavior.search.enable_advanced_search.help"),
-        envVar: "bool:ENABLE_ADVANCED_SEARCH", 
+        envVar: "bool:ENABLE_ADVANCED_SEARCH",
         envVarMode: EnvVarMode::OVERWRITE
     )]
     public bool $enableAdvancedSearch = false;
-    
+
     /**
      * Defines the maximum number of tokens the keyword can be split up to
-     * @var bool
+     * @var int
      */
     #[SettingsParameter(
-        label: new TM("settings.behavior.search.token_limit"), 
+        label: new TM("settings.behavior.search.token_limit"),
         description: new TM("settings.behavior.search.token_limit.help"),
-        envVar: "int:SEARCH_TOKEN_LIMIT", 
+        envVar: "int:SEARCH_TOKEN_LIMIT",
         envVarMode: EnvVarMode::OVERWRITE,
         formOptions: ['attr' => ['min' => 2, 'max' => 10]],
     )]
     #[Assert\Range(min: 2, max: 10)]
     public int $searchTokenLimit = 3;
-    
+
     /**
      * Whether to escape sql wildcards
      * @var bool
      */
     #[SettingsParameter(
-        label: new TM("settings.behavior.search.escape_sql_wildcards"), 
+        label: new TM("settings.behavior.search.escape_sql_wildcards"),
         description: new TM("settings.behavior.search.escape_sql_wildcards.help"),
-        envVar: "bool:ESCAPE_SQL_WILDCARDS", 
+        envVar: "bool:ESCAPE_SQL_WILDCARDS",
         envVarMode: EnvVarMode::OVERWRITE
     )]
     public bool $escapeSQLWildcards = true;
