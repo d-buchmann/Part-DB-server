@@ -74,9 +74,10 @@ class PartSearchFilter implements FilterInterface
     /** @var int array_map iteration helper variable */
     protected int $it = 0;
 
+    /** @var string The string to query for */
+    protected string $keyword,
+
     public function __construct(
-        /** @var string The string to query for */
-        protected string $keyword,
         private readonly SearchSettings $searchSettings,
     ) {
     }
