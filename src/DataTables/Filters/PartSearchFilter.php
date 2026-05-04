@@ -139,7 +139,7 @@ class PartSearchFilter implements FilterInterface
         // Add exact ID match only when the keyword is numeric
         $search_dbId = $is_numeric && (bool)$this->dbId;
 
-        if ($this->searchSettings->enableAdvancedSearch)
+        if ($this->searchSettings->enableAdvancedSearch) {
             //Transform keyword and trim excess spaces
             $this->keyword = trim(str_replace('+', ' ', $this->keyword));
             //Split keyword on spaces, but limit token count (default is 3)
