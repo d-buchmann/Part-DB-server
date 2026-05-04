@@ -22,6 +22,7 @@ declare(strict_types=1);
  */
 namespace App\DataTables\Filters;
 use App\DataTables\Filters\Constraints\AbstractConstraint;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\DBAL\ParameterType;
@@ -134,10 +135,15 @@ class PartSearchFilter implements FilterInterface
         $tokens = [];
 
         // Detect if the keyword is purely numeric
-        $is_numeric = (preg_match('/^\d+$/', $this->keyword) === 1);
+        $is_numeric = preg_match('/^\d+$/', $this->keyword) === 1;
 
         // Add exact ID match only when the keyword is numeric
         $search_dbId = $is_numeric && (bool)$this->dbId;
+
+        //If we have nothing to search for, do nothing
+        if (($fields_to_search === [] && !$search_dbId) || $this->keyword === '') {
+            return;
+        }
 
         if ($this->searchSettings->enableAdvancedSearch) {
             //Transform keyword and trim excess spaces
@@ -153,13 +159,8 @@ class PartSearchFilter implements FilterInterface
             $tokens[] = $this->keyword;
         }
 
-       //If we have nothing to search for, do nothing
-        if (($fields_to_search === [] && !$search_dbId) || $this->keyword === '') {
-            return;
-        }
-
-        $expressions = [];
         $params = [];
+        $expressions = [];
 
         if($fields_to_search !== []) {
             //For regex, we pass the query as is
@@ -178,29 +179,25 @@ class PartSearchFilter implements FilterInterface
                }
             } else {
                 //Add a new expression and parameter set to the query for each token
-                for ($i = 0; $i < sizeof($tokens); $i++) {
-                    $current_token = $tokens[$i];
+                foreach ($tokens as $token) {
                     //Conditionally escape % and _ characters
                     if ($this->searchSettings->escapeSQLWildcards)
-                        $current_token = str_replace(['%', '_'], ['\%', '\_'], $current_token);
-
-                    $this->it = $i;
+                        $token = str_replace(['%', '_'], ['\%', '\_'], $token);
 
                     //Convert the fields to search to a list of expressions
-                    $expressions = array_map(function (string $field): string {
-                        return sprintf("ILIKE(%s, :search_query%u) = TRUE",
-                            $field, $this->it);
+                    $expressions = array_map(function (string $field, int $i): string {
+                        return sprintf("ILIKE(%s, :search_query%u) = TRUE", $field, $i);
                     }, $fields_to_search);
 
                     //Aggregate the parameters for consolidated commission
                     //For like, we add % to the start and end as wildcards
-                    $params[] = new \Doctrine\ORM\Query\Parameter(
-                        'search_query' . $i, '%' . $current_token . '%');
+                    $params[] = new Parameter(
+                        'search_query' . $i, '%' . $token . '%');
                     //Use equal expression to search for exact numeric matches
-                    if ($search_dbId && preg_match('/^\d+$/', $current_token) === 1) {
+                    if ($search_dbId && preg_match('/^\d+$/', $token) === 1) {
                         $expressions[] = $queryBuilder->expr()->eq('part.id', ':id_exact' . $i);
-                        $params[] = new \Doctrine\ORM\Query\Parameter('id_exact' . $i,
-                            (int) $current_token, ParameterType::INTEGER);
+                        $params[] = new Parameter('id_exact' . $i,
+                            (int) $token, ParameterType::INTEGER);
                     }
 
                     //Guard condition
@@ -215,7 +212,7 @@ class PartSearchFilter implements FilterInterface
         }
 
         $queryBuilder->setParameters(
-            new \Doctrine\Common\Collections\ArrayCollection($params)
+            new ArrayCollection($params)
         );
     }
 
