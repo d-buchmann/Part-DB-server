@@ -131,6 +131,9 @@ class PartSearchFilter implements FilterInterface
         $fields_to_search = $this->getFieldsToSearch();
         $tokens = [];
 
+        // Detect if the keyword is purely numeric
+        $is_numeric = (preg_match('/^\d+$/', $keyword) === 1);
+
         if ($searchSettings->enableAdvancedSearch) {
             //Transform keyword and trim excess spaces
             $keyword = trim(str_replace('+', ' ', $keyword));
@@ -143,14 +146,6 @@ class PartSearchFilter implements FilterInterface
             //Pass the whole keyword into the (empty) tokens array as is,
             //retaining the original search behavior
             $tokens[] = $keyword;
-        }
-
-        // Detect if any of the keyword tokens is numeric
-        $is_numeric = false;
-        foreach ($tokens as $token) {
-            if (preg_match('/^\d+$/', $token) === 1) {
-                $is_numeric = true;
-            }
         }
 
         // Add exact ID match only when the keyword is numeric
