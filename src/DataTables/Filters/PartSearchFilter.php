@@ -75,7 +75,7 @@ class PartSearchFilter implements FilterInterface
     protected int $it = 0;
 
     /** @var string The string to query for */
-    protected string $keyword,
+    protected string $keyword;
 
     public function __construct(
         private readonly SearchSettings $searchSettings,
