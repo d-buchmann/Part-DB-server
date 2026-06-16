@@ -1,5 +1,5 @@
 {% import "vars.macro.twig" as vars %}
-
+{% set anon_can_read = false %}
 <!DOCTYPE html>
 <html lang="{{ app.request.locale | replace({"_": "-"}) }}"
     {#  For the UX translator, just use the language part (before the _. should be 2 chars), otherwise it finds no translations #}
@@ -97,7 +97,7 @@
                 {% include "_toast_container.html.twig" %}
 
                 <div class="collapse d-md-block" id="sidebar-container">
-                    <nav  class="fixed-sidebar col-md-3 col-lg-2 bg-body" id="fixed-sidebar">
+                    <nav  class="fixed-sidebar col-md-3 col-lg-2 bg-body d-none" id="fixed-sidebar">
                         <turbo-frame id="sidebar" target="content" data-turbo-action="advance" data-turbo-permanent>
                             {% include "_sidebar.html.twig" %}
                         </turbo-frame>
@@ -105,7 +105,7 @@
                     </nav>
                 </div>
 
-                <div class="col-md-9 col-lg-10 offset-md-3 offset-lg-2 ps-0" id="main">
+                <div class="col-12 ps-0" id="main">
                     <div class="container-fluid me-0 pe-0" id="content-container">
                         <turbo-frame id="content" data-turbo-action="advance">
                             {# Here will be the real content be injected#}
@@ -134,10 +134,13 @@
     </button>
 
     {# Must be outside of the sidebar or it will be hidden too #}
+    {# If the user is unauthenticated and anonymous has no read permissions, we hide the sidebar including this button #}
+    {% if is_granted("IS_AUTHENTICATED_FULLY") or anon_can_read %}
     <button class="btn btn-outline-secondary btn-sm p-0 d-md-block d-none" type="button" id="sidebar-toggle-button" title="{% trans %}sidebar.big.toggle{% endtrans %}"
         {{ stimulus_controller('common/hide_sidebar') }} {{ stimulus_action('common/hide_sidebar', 'toggleSidebar') }} style="--fa-width: 10px;">
         <i class="fas fa-angle-left"></i>
     </button>
+    {% endif %}
 
 {% endblock %}
 

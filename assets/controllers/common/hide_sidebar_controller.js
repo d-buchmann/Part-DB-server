@@ -50,8 +50,8 @@ export default class extends Controller {
         this._toggle_button = this.element;
 
         //Make the state persistent over reloads
-        if(localStorage.getItem(STORAGE_KEY) === 'true') {
-            this.hideSidebar();
+        if(localStorage.getItem(STORAGE_KEY) !== 'true') {
+            this.showSidebar();
         }
     }
 

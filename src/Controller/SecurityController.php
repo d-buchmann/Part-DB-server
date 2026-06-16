@@ -54,8 +54,22 @@ class SecurityController extends AbstractController
     }
 
     #[Route(path: '/login', name: 'login', methods: ['GET', 'POST'])]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(EntityManagerInterface $em, AuthenticationUtils $authenticationUtils): Response
     {
+        $anonCanRead = false;
+        $user = $em->getRepository(User::class)->find(1);
+        $permissions = $user->getPermissions();
+
+        // if the user inherits permissions, use the group
+        if ($permissions->jsonSerialize() === []) {
+            $permissions = $user->getGroup()->getPermissions();
+        }
+
+        // lazy check for the most basic read permission
+        if ($permissions->getPermissionValue('parts', 'read') === true) {
+            $anonCanRead = true;
+        }
+
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
 
@@ -70,6 +84,7 @@ class SecurityController extends AbstractController
             'form' => $form,
             'last_username' => $lastUsername,
             'error' => $error,
+            'anon_can_read' => $anonCanRead,
         ]);
     }
 
