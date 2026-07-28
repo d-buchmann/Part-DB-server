@@ -128,7 +128,29 @@ final readonly class PartsDataTable implements DataTableTypeInterface
             ->add('si_value', TextColumn::class, [
                 'label' => $this->translator->trans('part.table.si_value'),
                 'data' => function (Part $context): string {
-                    $siValue = SiValueSort::sqliteSiValue($context->getName());
+                    // Read SI formattable value from EDA info or parameters before falling back to the name
+                    $edaPartInfo = $context->getEdaInfo();
+                    if ($edaPartInfo && $edaPartInfo->getValue() != null)
+                        $valueToFormat = $edaPartInfo->getValue();
+                    else {
+                        $params = $context->getParameters();
+                        if ($params){
+                            // first is a wild guess at the "most important" parameter of the particular part
+                            $result = $params->first();
+                            // TODO get a list of meaningful parameters to determine the SI value
+                            /*
+                            $result = $params->filter(
+                            function ($param)  {
+                                return  ('value' === $param->getName());
+                            }
+                        );*/
+                        }
+                        if ($result && $result->getValueTypical() != null)
+                            $valueToFormat = strval($result->getValueTypical()) . ' ' . $result->getUnit();
+                        else 
+                            $valueToFormat = $context->getName();
+                    }
+                    $siValue = SiValueSort::sqliteSiValue($valueToFormat);
                     if ($siValue !== null) {
                         //Output it as scientific number with a big E
                         return sprintf('%G', $siValue);
