@@ -5,10 +5,6 @@ framework:
         transports:
             async:
                 dsn: 'doctrine://default'
-                options:
-                    # Poll the table every 1 second when the worker is running.
-                    polling_interval: 1000
-
         routing:
             # Route the WLED off-command through the async (Doctrine) transport
             # so it is executed by the Messenger worker after the configured delay.

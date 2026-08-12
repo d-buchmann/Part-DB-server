@@ -63,7 +63,7 @@ final class WledService
         $statusCodes = [];
 
         foreach ($devices as $baseUrl => $segments) {
-            $url     = rtrim($baseUrl, '/') . '/json/state';
+            $url     = 'http://' . ltrim(rtrim($baseUrl, '/'), 'http://') . '/json/state';
             $payload = $this->buildPayload($segments, $on);
 
             try {
@@ -103,7 +103,7 @@ final class WledService
                 'on'    => true,              // segment always active; colour controls visibility
                 'col'   => [$on ? self::HIGHLIGHT_COLOR : self::OFF_COLOR],
                 'fx'    => 0,                 // solid effect
-                'bri'   => $on ? 255 : 0,
+                'bri'   => 100,
             ];
         }
 
