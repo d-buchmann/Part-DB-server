@@ -24,15 +24,11 @@ namespace App\Controller;
 
 use App\Entity\Parts\PartLot;
 use App\Entity\Parts\StorageLocation;
-use App\Message\WledOffMessage;
 use App\Services\WLED\WledService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/locate')]
@@ -41,45 +37,104 @@ final class LocateController extends AbstractController
     private const PARAM_IP = 'WLED IP';
     private const PARAM_INDICES = 'WLED Indices';
 
-    #[Route(path: '/lot/{lotId}', name: 'locate_by_lot', requirements: ['lotId' => '\d+'])]
-    public function locate(
+    #[Route(path: '/lot/{lotId}', name: 'locate_lot', requirements: ['lotId' => '\d+'])]
+    public function locate_by_lot(
         int $lotId,
         Request $request,
         EntityManagerInterface $em,
         WledService $wled,
-        MessageBusInterface $bus,
     ): Response {
-
         $lot = $em->find(PartLot::class, $lotId);
-        
-        if (!$lot instanceof PartLot) {
-            $this->addFlash('error', 'Part lot with ID ' . $lotId . ' not found.');
-            return $this->redirectToReferrer($request);
-        }
 
-        $this->denyAccessUnlessGranted('read', $lot->getPart());
+        if ($lot instanceof PartLot) {
+            $this->denyAccessUnlessGranted('read', $lot->getPart());
+        } else {
+            $this->addFlash('error', 'Part lot not found.');
+            return $this->redirectToRoute('homepage');
+        }
 
         $location = $lot->getStorageLocation();
 
-        if ($location === null) {
-            $this->addFlash('error', 'Part lot with ID ' . $lotId . ' has no storage location.');
-            return $this->redirectToReferrer($request);
+        if ($location instanceof StorageLocation) {
+            $this->sendLocation($location, $wled, on: $request->query->has('reset') === false);
+        } else {
+            $this->addFlash('error', 'This lot has no storage location.');
         }
-        return $this->locate_by_storage_location($location->getId(), $request, $em, $wled, $bus);
+
+        return $this->redirectToRoute('part_info', [
+            'id' => $lot->getPart()->getID(),
+            'highlightLot' => $lot->getID(),
+        ]);
     }
 
-    #[Route(path: '/storage_location/{locId}', name: 'locate_by_storage_location', requirements: ['locId' => '\d+'])]
+    #[Route(path: '/storage_location/{locationId}', name: 'locate_storage_location', requirements: ['locationId' => '\d+'])]
     public function locate_by_storage_location(
-        int $locId,
+        int $locationId,
         Request $request,
         EntityManagerInterface $em,
         WledService $wled,
-        MessageBusInterface $bus,
     ): Response {
+        $location = $em->find(StorageLocation::class, $locationId);
 
-        $this->denyAccessUnlessGranted('@storelocations.read');
-        $location = $em->find(StorageLocation::class, $locId);
+        if ($location instanceof StorageLocation) {
+            $this->denyAccessUnlessGranted('read', $location);
+            $this->sendLocation($location, $wled, on: $request->query->has('reset') === false);
+        } else {
+            $this->addFlash('error', 'Storage location not found.');
+        }
 
+        return $this->redirectToRoute('part_list_store_location', ['id' => $locationId]);
+    }
+
+    #[Route(path: '/reset_all', name: 'reset_all')]
+    public function resetAll(
+        EntityManagerInterface $em,
+        WledService $wled,
+    ): Response {
+        //$this->denyAccessUnlessGranted('@tools.reel_calculator');
+
+        $devices = [];
+
+        foreach ($em->getRepository(StorageLocation::class)->findAll() as $location) {
+            if (!$location instanceof StorageLocation) {
+                continue;
+            }
+
+            foreach ($location->getParameters() as $param) {
+                if ($param->getName() === self::PARAM_IP) {
+                    $wledIp = trim($param->getValueText());
+                    if ($wledIp !== '') {
+                        $wledIps[$wledIp] = true;
+                    }
+                    break;
+                }
+            }
+        }
+
+        $statusCodes = $wled->resetAll(array_keys($wledIps));
+        $failedDevices = array_keys(array_filter(
+            $statusCodes,
+            static fn(int $statusCode): bool => $statusCode < 200 || $statusCode >= 300
+        ));
+
+        if ($failedDevices !== []) {
+            $this->addFlash(
+                'error',
+                sprintf('Could not reset the WLED device(s): %s.', implode(', ', $failedDevices))
+            );
+        }
+
+        return $this->redirectToRoute('homepage');
+    }
+
+    /**
+     * Send an on or off command for one storage location.
+     */
+    private function sendLocation(
+        StorageLocation $location,
+        WledService $wled,
+        bool $on,
+    ): void {
         $wledIp = null;
         $ledMin = null;
         $ledMax = null;
@@ -91,11 +146,15 @@ final class LocateController extends AbstractController
                     break;
 
                 case self::PARAM_INDICES:
+                    if ($param->getValueTypical() !== null) {
+                        $ledMin = (int) $param->getValueTypical();
+                        $ledMax = $ledMin + 1;
+                    }
                     if ($param->getValueMin() !== null) {
                         $ledMin = (int) $param->getValueMin();
                     }
                     if ($param->getValueMax() !== null) {
-                        $ledMax = (int) $param->getValueMax();
+                        $ledMax = (int) $param->getValueMax() + 1;
                     }
                     break;
             }
@@ -106,47 +165,30 @@ final class LocateController extends AbstractController
                 'error',
                 sprintf('Storage location "%s" has no "%s" parameter.', $location->getName(), self::PARAM_IP)
             );
-            return $this->redirectToReferrer($request);
+            return;
         }
         if ($ledMin === null || $ledMax === null) {
             $this->addFlash(
                 'error',
-                sprintf('Storage location "%s" has no "%s" parameter with min/max values.', $location->getName(), self::PARAM_INDICES)
+                sprintf('Storage location "%s" has no usable "%s" parameter.', $location->getName(), self::PARAM_INDICES)
             );
-            return $this->redirectToReferrer($request);
+            return;
         }
 
         $devices = [];
         $wled->addRange($devices, $wledIp, $ledMin, $ledMax);
 
-        $statusCodes = $wled->send($devices, on: true);
-        $failedDevices = array_filter(
+        $statusCodes = $wled->send($devices, $on);
+        $failedDevices = array_keys(array_filter(
             $statusCodes,
             static fn(int $statusCode): bool => $statusCode < 200 || $statusCode >= 300
-        );
+        ));
 
-        foreach($failedDevices as $failedDevice => $statusCode) {
+        if ($failedDevices !== []) {
             $this->addFlash(
                 'error',
-                sprintf('Could not highlight the WLED device(s): %s (code %s).', $failedDevice, $statusCode)
+                sprintf('Could not %s the WLED device(s): %s.', $on ? 'highlight' : 'reset', implode(', ', $failedDevices))
             );
-            return $this->redirectToReferrer($request);
         }
-
-        // Schedule the "off" command. The delay is in milliseconds.
-        $bus->dispatch(
-            (new Envelope(new WledOffMessage($devices)))->with(
-                new DelayStamp(WledOffMessage::HIGHLIGHT_DURATION_S * 1000)
-            )
-        );
-
-        return $this->redirectToReferrer($request);
-    }
-
-    private function redirectToReferrer(Request $request): Response
-    {
-        $referrer = $request->headers->get('referer');
-
-        return $this->redirect($referrer ?: '/');
     }
 }
