@@ -44,6 +44,7 @@ use Brick\Schema\Interfaces\QuantitativeValue;
 use Brick\Schema\Interfaces\Thing;
 use Brick\Schema\SchemaReader;
 use Brick\Schema\SchemaTypeList;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -61,6 +62,7 @@ class GenericWebProvider implements InfoProviderInterface
     public function __construct(HttpClientInterface $httpClient, private readonly GenericWebProviderSettings $settings,
         private readonly CreateFromUrlHelper $createFromUrlHelper,
         private readonly SubmittedPageStorage $browserHtmlStorage,
+        private readonly EntityManagerInterface $entityManager
     )
     {
         //Use NoPrivateNetworkHttpClient to prevent SSRF vulnerabilities, and RandomizeUseragentHttpClient to make it harder for servers to block us
@@ -120,6 +122,11 @@ class GenericWebProvider implements InfoProviderInterface
         $host = parse_url($url, PHP_URL_HOST);
         if ($host === false || $host === null) {
             return self::DISTRIBUTOR_NAME;
+        }
+        //Look up the existing suppliers for a matching hostname and return its name if found
+        $suppliers = $this->entityManager->getRepository(Supplier::class)->findSupplierForUrl(ltrim($host, 'w.'));
+        if ($suppliers !== null) {
+            return array_first($suppliers)->getName();
         }
         return $host;
     }

@@ -65,4 +65,16 @@ class SupplierRepository extends AbstractPartsContainingRepository
 
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
+
+    public function findSupplierForUrl(string $url): array
+    {
+        $qb = new QueryBuilder($this->getEntityManager());
+
+        $qb->select('supplier')
+            ->from(Supplier::class, 'supplier')
+            ->where('supplier.website LIKE ?1')
+            ->setParameter(1, '%'.$url.'%');
+
+        return $qb->getQuery()->getResult();
+    }
 }
