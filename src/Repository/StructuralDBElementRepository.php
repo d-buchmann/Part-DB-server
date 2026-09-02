@@ -250,27 +250,6 @@ class StructuralDBElementRepository extends AttachmentContainingDBElementReposit
                 return $tmp[count($tmp) - 1];
             }
         }
-        
-        //The generic info provider gives a supplier URL, match this with the stored suppliers
-        //This only works on some tables, so catch the cases where we know it'll fail
-        try
-        {
-            $qb = $this->createQueryBuilder('e');
-            //Use lowercase conversion to be case-insensitive
-            $qb->where($qb->expr()->like('LOWER(e.website)', 'LOWER(:name)'));
-            $qb->setParameter('name', '%'.$name.'%');
-
-            $result = $qb->getQuery()->getResult();
-            if (count($result) >= 1) {
-                return $result[0];
-            }
-        }
-        catch (Exception $e)
-        {
-            if ($e instanceof \ErrorException) {
-                $e->cleanOutput();
-            }
-        }
 
         //If we find nothing, return null
         return null;
