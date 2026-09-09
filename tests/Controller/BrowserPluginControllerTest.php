@@ -158,6 +158,32 @@ final class BrowserPluginControllerTest extends WebTestCase
         $this->assertStringContainsString('generic_web', (string) $data['redirect_url']);
     }
 
+    // TODO
+    public function testSubmitHtmlWithValidPurchaseInfo(): void
+    {
+        $client = static::createClient();
+        $client->disableReboot();
+        $this->loginAsUser($client, 'admin');
+        static::getContainer()->get(BrowserPluginSettings::class)->enabled = true;
+
+        $client->request('POST', '/en/tools/info_providers/browser_html', [], [], [
+            'CONTENT_TYPE' => 'application/json',
+        ], json_encode([
+            'url'      => 'https://example.com/product/123',
+            'html'     => '<html><body>Product page</body></html>',
+            'title'    => 'Some Product',
+            'provider' => 'generic_web',
+        ]));
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        $this->assertArrayHasKey('purchase_info', $data);
+        $this->assertNotNull($data['purchase_info']);
+        $this->assertArrayHasKey('distributor_name', $data['purchase_info']);
+        $this->assertNotNull($data['purchase_info']['distributor_name']);
+        $this->assertEquals('example.com', $data['purchase_info']['distributor_name']);
+    }
+    
     public function testSubmitHtmlWithoutProviderReturnsNullRedirectUrl(): void
     {
         $client = static::createClient();
