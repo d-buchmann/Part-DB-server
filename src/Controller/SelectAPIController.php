@@ -29,6 +29,7 @@ use App\Entity\Parts\Category;
 use App\Entity\Parts\Footprint;
 use App\Entity\Parts\Manufacturer;
 use App\Entity\Parts\MeasurementUnit;
+use App\Entity\Parts\PartCustomState;
 use App\Entity\Parts\StorageLocation;
 use App\Entity\ProjectSystem\Project;
 use App\Form\Type\Helper\StructuralEntityChoiceHelper;
@@ -83,6 +84,12 @@ class SelectAPIController extends AbstractController
     public function locations(): Response
     {
         return $this->getResponseForClass(StorageLocation::class, true);
+    }
+    
+    #[Route(path: '/part_custom_state', name: 'select_part_custom_state')]
+    public function custom_states(): Response
+    {
+        return $this->getResponseForClass(PartCustomState::class, true);
     }
 
     #[Route(path: '/export_level', name: 'select_export_level')]

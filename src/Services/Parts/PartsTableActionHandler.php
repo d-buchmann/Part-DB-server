@@ -29,6 +29,7 @@ use App\Entity\Parts\Footprint;
 use App\Entity\Parts\Manufacturer;
 use App\Entity\Parts\MeasurementUnit;
 use App\Entity\Parts\Part;
+use App\Entity\Parts\PartCustomState;
 use App\Entity\Parts\PartLot;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -225,6 +226,10 @@ implode(',', array_map(static fn (PartLot $lot) => $lot->getID(), $part->getPart
                         $part_lot->setStorageLocation(null === $target_id ? null : $this->entityManager->find(StorageLocation::class, $target_id));
                         $this->entityManager->persist($part_lot);
                     }
+                    break;
+                case 'change_part_custom_state':
+                    $this->denyAccessUnlessGranted('@part_custom_states.read');
+                    $part->setPartCustomState(null === $target_id ? null : $this->entityManager->find(PartCustomState::class, $target_id));
                     break;
 
                 default:
