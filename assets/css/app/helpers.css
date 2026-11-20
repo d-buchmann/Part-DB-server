@@ -119,3 +119,8 @@ ul.structural_link li a:hover {
 .katex-same-height-as-text .katex {
     font-size: 1.0em;
 }
+
+/* Label profiles: hide the label/sheet measurements while a built-in label sheet is selected */
+.label-sheet:has(select option[value=""]:not(:checked)) .label-sheet-custom {
+    display: none;
+}

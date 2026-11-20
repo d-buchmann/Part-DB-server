@@ -15131,13 +15131,13 @@ Buerklin-API Authentication server:
     <unit id="IIZuqvx" name="label_options.page_nup.skip_label">
       <segment state="translated">
         <source>label_options.page_nup.skip_label</source>
-        <target>Skip</target>
+        <target>Skip positions</target>
       </segment>
     </unit>
     <unit id="CkfK4.7" name="label_options.page_nup.skip_placeholder">
       <segment state="translated">
         <source>label_options.page_nup.skip_placeholder</source>
-        <target>Already used positions</target>
+        <target>Number of labels already used on the first sheet</target>
       </segment>
     </unit>
     <unit id="xe973Zw" name="label_options.sheet.page_size">
@@ -15186,6 +15186,24 @@ Buerklin-API Authentication server:
       <segment state="translated">
         <source>label_options.sheet.help</source>
         <target>Pitch is the distance from the edge of one label to the same edge of the next one (label size plus gap). With one label per sheet and all values 0, every label is its own page of the label size (label printers). A sheet size or pitch of 0 is calculated from the label size.</target>
+      </segment>
+    </unit>
+    <unit id="SjwPADc" name="label_options.sheet.label">
+      <segment state="translated">
+        <source>label_options.sheet.label</source>
+        <target>Label sheet</target>
+      </segment>
+    </unit>
+    <unit id="ihYP89c" name="label_options.sheet.custom">
+      <segment state="translated">
+        <source>label_options.sheet.custom</source>
+        <target>Custom (label printer, or values below)</target>
+      </segment>
+    </unit>
+    <unit id="xdWd2Qj" name="label_options.sheet.help_select">
+      <segment state="translated">
+        <source>label_options.sheet.help_select</source>
+        <target>Pre-cut label sheets for office printers (search by product code or size). A selected sheet sets the label size and the sheet values below.</target>
       </segment>
     </unit>
   </file>

@@ -84,6 +84,15 @@ class LabelOptions
     protected int $grid_rows = 1;
 
     /**
+     * @var string The built-in label sheet ("brand/code" from config/label_sheets.yaml) whose geometry is used,
+     *  or empty for the custom geometry below
+     */
+    #[Assert\Length(max: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255, options: ['default' => ''])]
+    #[Groups(["extended", "full", "import"])]
+    protected string $sheet = '';
+
+    /**
      * @var float The width of the page (sheet) in mm. 0 means: derived from the label size and grid
      */
     #[Assert\PositiveOrZero]
@@ -224,6 +233,18 @@ class LabelOptions
         return $this;
     }
     
+    public function getSheet(): string
+    {
+        return $this->sheet;
+    }
+
+    public function setSheet(?string $sheet): self
+    {
+        $this->sheet = $sheet ?? '';
+
+        return $this;
+    }
+
     public function getPageWidth(): float
     {
         return $this->page_width;

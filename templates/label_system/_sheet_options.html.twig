@@ -1,29 +1,24 @@
-{# Sheet (N-up) options of a label profile, shared by the label dialog and the label profile editor. #}
-<div class="mb-2 row">
-    {{ form_label(options.grid_columns) }}
-    <div class="{{ col_input }}">
-        <div class="input-group">
-            {{ form_widget(options.grid_columns) }}
-            <span class="input-group-text">x</span>
-            {{ form_widget(options.grid_rows) }}
-            <span class="input-group-text">{{ options.skip_count.vars.label|trans }}</span>
-            {{ form_widget(options.skip_count) }}
-        </div>
-    </div>
-</div>
-{% for fields in [['page_width', 'page_height'], ['margin_top', 'margin_left'], ['horizontal_pitch', 'vertical_pitch']] %}
-    <div class="mb-2 row">
-        {{ form_label(options[fields[0]]) }}
-        <div class="{{ col_input }}">
-            <div class="input-group">
-                {{ form_widget(options[fields[0]]) }}
-                <span class="input-group-text">x</span>
-                {{ form_widget(options[fields[1]]) }}
-                <span class="input-group-text">mm</span>
+{# Label size and sheet (N-up) options of a label profile, shared by the label dialog and the label profile editor.
+   The measurements are hidden while a built-in sheet is selected (see .label-sheet-custom in helpers.css). #}
+<div class="label-sheet">
+    {{ form_row(options.sheet) }}
+    <div class="label-sheet-custom">
+        {% for fields in [['width', 'height'], ['grid_columns', 'grid_rows'], ['page_width', 'page_height'], ['margin_top', 'margin_left'], ['horizontal_pitch', 'vertical_pitch']] %}
+            <div class="mb-2 row">
+                {{ form_label(options[fields[0]]) }}
+                <div class="{{ col_input }}">
+                    <div class="input-group">
+                        {{ form_widget(options[fields[0]]) }}
+                        <span class="input-group-text">x</span>
+                        {{ form_widget(options[fields[1]]) }}
+                        {% if fields[0] != 'grid_columns' %}<span class="input-group-text">mm</span>{% endif %}
+                    </div>
+                    {% if loop.last %}
+                        <div class="form-text">{% trans %}label_options.sheet.help{% endtrans %}</div>
+                    {% endif %}
+                </div>
             </div>
-            {% if loop.last %}
-                <div class="form-text">{% trans %}label_options.sheet.help{% endtrans %}</div>
-            {% endif %}
-        </div>
+        {% endfor %}
     </div>
-{% endfor %}
+    {{ form_row(options.skip_count) }}
+</div>

@@ -28,9 +28,59 @@ use PHPUnit\Framework\TestCase;
 
 final class LabelSheetProviderTest extends TestCase
 {
+    private function provider(): LabelSheetProvider
+    {
+        return new LabelSheetProvider(__DIR__.'/../../../config/label_sheets.yaml');
+    }
+
+    /**
+     * Every built-in sheet must be complete, fit on its page and have no overlapping labels.
+     */
+    public function testBuiltInSheetsAreValid(): void
+    {
+        $sheets = $this->provider()->getSheets();
+        $this->assertNotEmpty($sheets);
+
+        foreach ($sheets as $key => $sheet) {
+            $grid = $sheet['grid'];
+            [$label_width, $label_height] = $sheet['label'];
+            [$page_width, $page_height] = $sheet['page'];
+
+            $this->assertGreaterThan(0, $label_width, $key);
+            $this->assertGreaterThan(0, $label_height, $key);
+            $this->assertGreaterThanOrEqual(1, $grid['columns'], $key);
+            $this->assertGreaterThanOrEqual(1, $grid['rows'], $key);
+            //No overlaps (0.01 mm tolerance for rounded manufacturer values)
+            $this->assertGreaterThanOrEqual($label_width - 0.01, $grid['pitch_x'], $key);
+            $this->assertGreaterThanOrEqual($label_height - 0.01, $grid['pitch_y'], $key);
+            //Everything on the page
+            $this->assertGreaterThanOrEqual(0, $grid['left'], $key);
+            $this->assertGreaterThanOrEqual(0, $grid['top'], $key);
+            $this->assertLessThanOrEqual($page_width + 0.01, $grid['left'] + ($grid['columns'] - 1) * $grid['pitch_x'] + $label_width, $key);
+            $this->assertLessThanOrEqual($page_height + 0.01, $grid['top'] + ($grid['rows'] - 1) * $grid['pitch_y'] + $label_height, $key);
+        }
+    }
+
+    public function testChoicesAreGroupedByBrand(): void
+    {
+        $choices = $this->provider()->getChoices();
+        $this->assertSame('Avery/L7160', $choices['Avery']['L7160 / J8160 – 21 × 63.5 × 38.1 mm (A4)']);
+    }
+
+    public function testBuiltInSheetIsUsedAndConvertedToMm(): void
+    {
+        $options = (new LabelOptions())->setSheet('Avery/5160');
+        $layout = $this->provider()->getLayout($options);
+
+        $this->assertEqualsWithDelta([215.9, 279.4], $layout['page'], 1e-9);
+        $this->assertEqualsWithDelta([66.675, 25.4], $layout['label'], 1e-9);
+        $this->assertCount(30, $layout['slots']);
+        $this->assertEqualsWithDelta([4.7625 + 69.85, 12.7], $layout['slots'][1], 1e-9);
+    }
+
     public function testSingleLabelHasNoLayout(): void
     {
-        $this->assertNull((new LabelSheetProvider())->getLayout(new LabelOptions()));
+        $this->assertNull($this->provider()->getLayout(new LabelOptions()));
     }
 
     public function testCustomGrid(): void
@@ -42,7 +92,7 @@ final class LabelSheetProviderTest extends TestCase
             ->setMarginTop(15.15)->setMarginLeft(7.25)
             ->setHorizontalPitch(66.0)->setVerticalPitch(38.1);
 
-        $layout = (new LabelSheetProvider())->getLayout($options);
+        $layout = $this->provider()->getLayout($options);
 
         $this->assertSame([210.0, 297.0], $layout['page']);
         $this->assertSame([63.5, 38.1], $layout['label']);
@@ -60,7 +110,7 @@ final class LabelSheetProviderTest extends TestCase
             ->setGridColumns(2)->setGridRows(1)
             ->setMarginLeft(5);
 
-        $layout = (new LabelSheetProvider())->getLayout($options);
+        $layout = $this->provider()->getLayout($options);
 
         //Labels butt together, same margin on both sides
         $this->assertSame([[5.0, 0.0], [55.0, 0.0]], $layout['slots']);

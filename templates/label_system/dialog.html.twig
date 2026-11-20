@@ -34,20 +34,6 @@
             {{ form_row(form.target_id) }}
 
             {{ form_row(form.options.supported_element) }}
-            <div class="mb-2 row">
-                {{ form_label(form.options.width) }}
-                <div class="{{ col_input }}">
-                    <div class="input-group">
-                        {{ form_widget(form.options.width) }}
-
-                        <span class="input-group-text">x</span>
-
-                        {{ form_widget(form.options.height) }}
-
-                        <span class="input-group-text">mm</span>
-                    </div>
-                </div>
-            </div>
             {% include "label_system/_sheet_options.html.twig" with {options: form.options} %}
             {{ form_row(form.options.barcode_type) }}
             {{ form_row(form.options.lines) }}

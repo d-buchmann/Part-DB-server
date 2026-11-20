@@ -44,11 +44,13 @@ namespace App\Form;
 use App\Entity\LabelSystem\BarcodeType;
 use App\Entity\LabelSystem\LabelProcessMode;
 use App\Entity\LabelSystem\LabelSupportedElement;
+use App\Services\LabelSystem\LabelSheetProvider;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\LabelSystem\LabelOptions;
 use App\Form\Type\RichTextEditorType;
 use App\Form\Type\TwigCodeEditorType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -59,12 +61,48 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class LabelOptionsType extends AbstractType
 {
-    public function __construct(private readonly Security $security)
+    public function __construct(private readonly Security $security, private readonly LabelSheetProvider $sheetProvider)
     {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $builder->add('sheet', ChoiceType::class, [
+            'label' => 'label_options.sheet.label',
+            'help' => 'label_options.sheet.help_select',
+            'required' => false,
+            'placeholder' => 'label_options.sheet.custom',
+            'empty_data' => '',
+            'choices' => $this->sheetProvider->getChoices(),
+            'choice_translation_domain' => false,
+            'attr' => [
+                'data-controller' => 'elements--select',
+            ],
+        ]);
+
+        //A selected built-in sheet overwrites the label size and geometry fields with its values,
+        //so they show what is used and serve as starting point when switching to custom.
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+            $data = $event->getData();
+            $sheet = is_array($data) ? $this->sheetProvider->getSheet((string) ($data['sheet'] ?? '')) : null;
+            if ($sheet === null) {
+                return;
+            }
+            $grid = $sheet['grid'];
+            $event->setData(array_merge($data, [
+                'width' => $sheet['label'][0],
+                'height' => $sheet['label'][1],
+                'page_width' => $sheet['page'][0],
+                'page_height' => $sheet['page'][1],
+                'grid_columns' => $grid['columns'],
+                'grid_rows' => $grid['rows'],
+                'margin_top' => $grid['top'],
+                'margin_left' => $grid['left'],
+                'horizontal_pitch' => $grid['pitch_x'],
+                'vertical_pitch' => $grid['pitch_y'],
+            ]));
+        });
+
         $builder->add('width', NumberType::class, [
             'label' => 'label_options.page_size.label',
             'html5' => true,
