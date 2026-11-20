@@ -44,11 +44,14 @@ namespace App\Form;
 use App\Entity\LabelSystem\BarcodeType;
 use App\Entity\LabelSystem\LabelProcessMode;
 use App\Entity\LabelSystem\LabelSupportedElement;
+use App\Services\LabelSystem\LabelSheetProvider;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\LabelSystem\LabelOptions;
 use App\Form\Type\RichTextEditorType;
 use App\Form\Type\TwigCodeEditorType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -59,12 +62,48 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class LabelOptionsType extends AbstractType
 {
-    public function __construct(private readonly Security $security)
+    public function __construct(private readonly Security $security, private readonly LabelSheetProvider $sheetProvider)
     {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $builder->add('sheet', ChoiceType::class, [
+            'label' => 'label_options.sheet.label',
+            'help' => 'label_options.sheet.help_select',
+            'required' => false,
+            'placeholder' => 'label_options.sheet.custom',
+            'empty_data' => '',
+            'choices' => $this->sheetProvider->getChoices(),
+            'choice_translation_domain' => false,
+            'attr' => [
+                'data-controller' => 'elements--select',
+            ],
+        ]);
+
+        //A selected built-in sheet overwrites the label size and geometry fields with its values,
+        //so they show what is used and serve as starting point when switching to custom.
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+            $data = $event->getData();
+            $sheet = is_array($data) ? $this->sheetProvider->getSheet((string) ($data['sheet'] ?? '')) : null;
+            if ($sheet === null) {
+                return;
+            }
+            $grid = $sheet['grid'];
+            $event->setData(array_merge($data, [
+                'width' => $sheet['label'][0],
+                'height' => $sheet['label'][1],
+                'page_width' => $sheet['page'][0],
+                'page_height' => $sheet['page'][1],
+                'grid_columns' => $grid['columns'],
+                'grid_rows' => $grid['rows'],
+                'margin_top' => $grid['top'],
+                'margin_left' => $grid['left'],
+                'horizontal_pitch' => $grid['pitch_x'],
+                'vertical_pitch' => $grid['pitch_y'],
+            ]));
+        });
+
         $builder->add('width', NumberType::class, [
             'label' => 'label_options.page_size.label',
             'html5' => true,
@@ -105,6 +144,72 @@ class LabelOptionsType extends AbstractType
             ],
         ]);
 
+        $builder->add('page_width', NumberType::class, [
+            'label' => 'label_options.sheet.page_size',
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.width.placeholder',
+                'title' => 'label_options.width.placeholder',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('page_height', NumberType::class, [
+            'label' => false,
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.height.placeholder',
+                'title' => 'label_options.height.placeholder',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('margin_top', NumberType::class, [
+            'label' => 'label_options.sheet.margins',
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.sheet.margin_top',
+                'title' => 'label_options.sheet.margin_top',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('margin_left', NumberType::class, [
+            'label' => false,
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.sheet.margin_left',
+                'title' => 'label_options.sheet.margin_left',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('horizontal_pitch', NumberType::class, [
+            'label' => 'label_options.sheet.pitch',
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.sheet.horizontal_pitch',
+                'title' => 'label_options.sheet.horizontal_pitch',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('vertical_pitch', NumberType::class, [
+            'label' => false,
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.sheet.vertical_pitch',
+                'title' => 'label_options.sheet.vertical_pitch',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
         $builder->add('skip_count', NumberType::class, [
             'label' => 'label_options.page_nup.skip_label',
             'html5' => true,
@@ -113,6 +218,12 @@ class LabelOptionsType extends AbstractType
                 'min' => 0,
                 'step' => 1,
             ],
+        ]);
+
+        $builder->add('remember_position', CheckboxType::class, [
+            'label' => 'label_options.sheet.remember_position',
+            'help' => 'label_options.sheet.remember_position.help',
+            'required' => false,
         ]);
 
         $builder->add('supported_element', EnumType::class, [

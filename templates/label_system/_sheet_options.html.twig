@@ -1,0 +1,35 @@
+{# Label size and sheet (N-up) options of a label profile, shared by the label dialog and the label profile editor.
+   The measurements are hidden while a built-in sheet is selected (see .label-sheet-custom in helpers.css). #}
+<div class="label-sheet">
+    {{ form_row(options.sheet) }}
+    <div class="label-sheet-custom">
+        {% for fields in [['width', 'height'], ['grid_columns', 'grid_rows'], ['page_width', 'page_height'], ['margin_top', 'margin_left'], ['horizontal_pitch', 'vertical_pitch']] %}
+            <div class="mb-2 row">
+                {{ form_label(options[fields[0]]) }}
+                <div class="{{ col_input }}">
+                    <div class="input-group">
+                        {{ form_widget(options[fields[0]]) }}
+                        <span class="input-group-text">x</span>
+                        {{ form_widget(options[fields[1]]) }}
+                        {% if fields[0] != 'grid_columns' %}<span class="input-group-text">mm</span>{% endif %}
+                    </div>
+                    {% if loop.last %}
+                        <div class="form-text">{% trans %}label_options.sheet.help{% endtrans %}</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% if dialog ?? false %}
+        <div class="mb-2 row" {{ stimulus_controller('pages/label_sheet_position') }}>
+            {{ form_label(options.skip_count) }}
+            <div class="{{ col_input }}">
+                <div class="input-group">
+                    {{ form_widget(options.skip_count, {attr: {'data-pages--label-sheet-position-target': 'skip'}}) }}
+                    <button type="button" class="btn btn-outline-secondary" {{ stimulus_action('pages/label_sheet_position', 'newSheet') }}>{% trans %}label_options.sheet.new_sheet{% endtrans %}</button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {{ form_row(options.remember_position) }}
+</div>

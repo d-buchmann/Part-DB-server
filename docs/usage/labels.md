@@ -17,6 +17,33 @@ the content (or write HTML code).
 Using the "Label placeholder" menu in the editor, you can insert placeholders for the data of the parts.
 It will be replaced by the concrete data when the label is generated.
 
+## Label sheets
+
+Besides label printers (one label per page), Part-DB can print many labels on pre-cut label sheets for office printers,
+like Avery, Avery Zweckform or HERMA sheets on A4 or US Letter paper.
+
+* **Built-in sheets:** Select the sheet in the "Label sheet" field of the label generator or the label profile.
+  You can search by product code (e.g. `L7160`, `3475`, `5160`) or by label size (e.g. `63.5`).
+  Part-DB then uses the sheet's exact geometry, and the label size and sheet fields are hidden.
+* **Custom sheets:** Leave "Label sheet" on "Custom" and enter the label size, the number of labels per sheet
+  (columns × rows), the sheet size, the margin from the top and left page edge to the first label, and the pitch
+  (the distance from the edge of one label to the same edge of the next label, i.e. label size plus gap).
+  You can find these values in the manufacturer's data sheet or template. A sheet size or pitch of 0 is calculated
+  from the label size. With one label per sheet and all values 0, every label gets its own page (label printers).
+* **Partly used sheets:** "Skip positions" leaves the first labels of the first sheet empty, so you can use the rest
+  of a sheet. If "Remember the next free position" is enabled in the profile, Part-DB remembers (per user and sheet type)
+  where the next free label is when you download the labels, and starts there next time. "New sheet" starts again
+  at the first position.
+
+Print the generated PDF at 100 % ("actual size"); "fit to page" scaling moves the labels off their positions.
+
+### Adding a built-in sheet
+
+The built-in sheets are defined in `config/label_sheets.yaml`, grouped by brand. The file's header comment describes
+all fields. Only use values from the manufacturer's own data (product page, template or die-cut drawing), and add the
+source as a comment above the entry. `tests/Services/LabelSystem/LabelSheetProviderTest.php` checks that every sheet
+fits on its page and that no labels overlap.
+
 ## Label placeholders
 
 A placeholder has the format `[[PLACEHOLDER]]` and will be filled with the concrete data by Part-DB.

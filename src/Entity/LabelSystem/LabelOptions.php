@@ -69,17 +69,76 @@ class LabelOptions
      * @var int the number of columns in a grid arrangement
      */
     #[Assert\Positive]
+    #[Assert\LessThanOrEqual(100)]
     #[ORM\Column(type: Types::SMALLINT)]
     #[Groups(["extended", "full", "import"])]
     protected int $grid_columns = 1;
     
     /**
-     * @var int the number of columns in a grid arrangement
+     * @var int the number of rows in a grid arrangement
      */
     #[Assert\Positive]
+    #[Assert\LessThanOrEqual(100)]
     #[ORM\Column(type: Types::SMALLINT)]
     #[Groups(["extended", "full", "import"])]
     protected int $grid_rows = 1;
+
+    /**
+     * @var string The built-in label sheet ("brand/code" from config/label_sheets.yaml) whose geometry is used,
+     *  or empty for the custom geometry below
+     */
+    #[Assert\Length(max: 255)]
+    #[ORM\Column(type: Types::STRING, length: 255, options: ['default' => ''])]
+    #[Groups(["extended", "full", "import"])]
+    protected string $sheet = '';
+
+    /**
+     * @var float The width of the page (sheet) in mm. 0 means: derived from the label size and grid
+     */
+    #[Assert\PositiveOrZero]
+    #[ORM\Column(type: Types::FLOAT, options: ['default' => 0.0])]
+    #[Groups(["extended", "full", "import"])]
+    protected float $page_width = 0.0;
+
+    /**
+     * @var float The height of the page (sheet) in mm. 0 means: derived from the label size and grid
+     */
+    #[Assert\PositiveOrZero]
+    #[ORM\Column(type: Types::FLOAT, options: ['default' => 0.0])]
+    #[Groups(["extended", "full", "import"])]
+    protected float $page_height = 0.0;
+
+    /**
+     * @var float The distance from the top page edge to the first label row in mm
+     */
+    #[Assert\PositiveOrZero]
+    #[ORM\Column(type: Types::FLOAT, options: ['default' => 0.0])]
+    #[Groups(["extended", "full", "import"])]
+    protected float $margin_top = 0.0;
+
+    /**
+     * @var float The distance from the left page edge to the first label column in mm
+     */
+    #[Assert\PositiveOrZero]
+    #[ORM\Column(type: Types::FLOAT, options: ['default' => 0.0])]
+    #[Groups(["extended", "full", "import"])]
+    protected float $margin_left = 0.0;
+
+    /**
+     * @var float The distance between the left edges of two neighbouring labels in mm. 0 means: label width (no gap)
+     */
+    #[Assert\PositiveOrZero]
+    #[ORM\Column(type: Types::FLOAT, options: ['default' => 0.0])]
+    #[Groups(["extended", "full", "import"])]
+    protected float $horizontal_pitch = 0.0;
+
+    /**
+     * @var float The distance between the top edges of two neighbouring labels in mm. 0 means: label height (no gap)
+     */
+    #[Assert\PositiveOrZero]
+    #[ORM\Column(type: Types::FLOAT, options: ['default' => 0.0])]
+    #[Groups(["extended", "full", "import"])]
+    protected float $vertical_pitch = 0.0;
 
     /**
      * @var BarcodeType The type of the barcode that should be used in the label (e.g. 'qr')
@@ -120,9 +179,17 @@ class LabelOptions
     protected string $lines = '';
 
     /**
+     * @var bool Remember (per user and sheet type) where the next free label position is, and start there next time
+     */
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    #[Groups(["extended", "full", "import"])]
+    protected bool $remember_position = false;
+
+    /**
      * @var int The number of leading empty labels in a grid arrangement
      * This does not need to be persisted, but can be passed to the label generator as an option
      */
+    #[Assert\PositiveOrZero]
     public int $skip_count = 0;
     
     public function getWidth(): float
@@ -173,6 +240,102 @@ class LabelOptions
         return $this;
     }
     
+    public function getSheet(): string
+    {
+        return $this->sheet;
+    }
+
+    public function setSheet(?string $sheet): self
+    {
+        $this->sheet = $sheet ?? '';
+
+        return $this;
+    }
+
+    public function getPageWidth(): float
+    {
+        return $this->page_width;
+    }
+
+    public function setPageWidth(float $page_width): self
+    {
+        $this->page_width = $page_width;
+
+        return $this;
+    }
+
+    public function getPageHeight(): float
+    {
+        return $this->page_height;
+    }
+
+    public function setPageHeight(float $page_height): self
+    {
+        $this->page_height = $page_height;
+
+        return $this;
+    }
+
+    public function getMarginTop(): float
+    {
+        return $this->margin_top;
+    }
+
+    public function setMarginTop(float $margin_top): self
+    {
+        $this->margin_top = $margin_top;
+
+        return $this;
+    }
+
+    public function getMarginLeft(): float
+    {
+        return $this->margin_left;
+    }
+
+    public function setMarginLeft(float $margin_left): self
+    {
+        $this->margin_left = $margin_left;
+
+        return $this;
+    }
+
+    public function getHorizontalPitch(): float
+    {
+        return $this->horizontal_pitch;
+    }
+
+    public function setHorizontalPitch(float $horizontal_pitch): self
+    {
+        $this->horizontal_pitch = $horizontal_pitch;
+
+        return $this;
+    }
+
+    public function getVerticalPitch(): float
+    {
+        return $this->vertical_pitch;
+    }
+
+    public function setVerticalPitch(float $vertical_pitch): self
+    {
+        $this->vertical_pitch = $vertical_pitch;
+
+        return $this;
+    }
+
+    public function isRememberPosition(): bool
+    {
+        return $this->remember_position;
+    }
+
+    public function setRememberPosition(bool $remember_position): self
+    {
+        $this->remember_position = $remember_position;
+
+        return $this;
+    }
+
     public function getSkipCount(): int
     {
         return $this->skip_count;

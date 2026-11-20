@@ -60,7 +60,8 @@ final readonly class LabelHTMLGenerator
         private LabelBarcodeGenerator $barcodeGenerator,
         private SandboxedTwigFactory $sandboxedTwigProvider,
         private Security $security,
-        private CustomizationSettings $customizationSettings)
+        private CustomizationSettings $customizationSettings,
+        private LabelSheetProvider $sheetProvider)
     {
     }
 
@@ -115,7 +116,32 @@ final readonly class LabelHTMLGenerator
             'meta_title' => $this->getPDFTitle($options, $elements[0]),
             'elements' => $twig_elements,
             'options' => $options,
+            'sheet' => $this->buildSheet($options, $twig_elements),
         ]);
+    }
+
+    /**
+     * Distributes the labels over the sheets: the first skip_count positions of the first sheet stay empty.
+     * Returns null in single label mode (one label per page).
+     * @return array{label: array{float, float}, pages: list<list<array{x: float, y: float}>>}|null
+     */
+    private function buildSheet(LabelOptions $options, array $twig_elements): ?array
+    {
+        $layout = $this->sheetProvider->getLayout($options);
+        if ($layout === null) {
+            return null;
+        }
+
+        $slots = $layout['slots'];
+        $position = max(0, $options->getSkipCount()) % count($slots);
+        $pages = [];
+        foreach ($twig_elements as $twig_element) {
+            [$x, $y] = $slots[$position % count($slots)];
+            $pages[intdiv($position, count($slots))][] = $twig_element + ['x' => $x, 'y' => $y];
+            ++$position;
+        }
+
+        return ['label' => $layout['label'], 'pages' => $pages];
     }
 
     private function getPDFTitle(LabelOptions $options, object $element): string

@@ -1,0 +1,538 @@
+# Built-in label sheets (pre-cut labels on A4/Letter/... sheets) that can be selected in a label profile.
+#
+# Grouped by brand, keyed by the product code. The profile stores "<brand>/<code>", so don't rename existing keys.
+# The text shown in the select is generated from the values (e.g. "L7160 / J8160 – 21 × 63.5 × 38.1 mm (A4)").
+#
+#   <code>:
+#     also: [...]              # optional: other codes of the same brand with the very same layout
+#     page: A4                 # A4, A5, Letter, Legal, or [width, height]
+#     unit: mm                 # optional: mm (default) or in, all lengths of this entry are in this unit
+#     label: [width, height]   # size of one label
+#     columns: 3               # labels per row
+#     rows: 7                  # labels per column
+#     top: 15.15               # top page edge to the top edge of the first label row
+#     left: 7.21               # left page edge to the left edge of the first label column
+#     pitch_x: 66.04           # left edge of a label to the left edge of the next one (label width + gap)
+#     pitch_y: 38.1            # top edge of a label to the top edge of the next one (label height + gap)
+#
+# Only add values from the manufacturer's own data (product page, template, die-cut drawing) and put the
+# source in a comment above the entry. tests/Services/LabelSystem/LabelSheetProviderTest checks that every
+# sheet is complete, fits on its page and that no labels overlap.
+
+Avery:
+  # Avery UK: https://www.avery.co.uk/template-l7160 (size/count) and its Word template (margins, pitch).
+  # The template is ~0.17 mm right of a centred grid (Word rounding); left/top are the centred values,
+  # which HERMA's die-cut drawing of the same layout (4677) states, too.
+  L7160:
+    also: [J8160]
+    page: A4
+    label: [63.5, 38.1]
+    columns: 3
+    rows: 7
+    top: 15.15
+    left: 7.21
+    pitch_x: 66.04
+    pitch_y: 38.1
+  # https://www.avery.co.uk/template-l7163 and Word template, centred left
+  L7163:
+    also: [J8163]
+    page: A4
+    label: [99.06, 38.1]
+    columns: 2
+    rows: 7
+    top: 15.15
+    left: 4.67
+    pitch_x: 101.6
+    pitch_y: 38.1
+  # https://www.avery.co.uk/template-l7651 and Word template, centred left
+  L7651:
+    also: [J8651]
+    page: A4
+    label: [38.1, 21.17]
+    columns: 5
+    rows: 13
+    top: 10.88
+    left: 4.71
+    pitch_x: 40.62
+    pitch_y: 21.17
+  # https://www.avery.co.uk/template-l7159 and Word template, centred left
+  L7159:
+    also: [J8159]
+    page: A4
+    label: [63.5, 33.85]
+    columns: 3
+    rows: 8
+    top: 13.05
+    left: 7.21
+    pitch_x: 66.04
+    pitch_y: 33.85
+  # https://www.avery.co.uk/template-l7162 and Word template, centred left
+  L7162:
+    also: [J8162]
+    page: A4
+    label: [99.06, 33.87]
+    columns: 2
+    rows: 8
+    top: 13.02
+    left: 4.67
+    pitch_x: 101.6
+    pitch_y: 33.87
+  # https://www.avery.co.uk/template-l7165 and Word template, centred left
+  L7165:
+    also: [J8165]
+    page: A4
+    label: [99.06, 67.72]
+    columns: 2
+    rows: 4
+    top: 13.04
+    left: 4.67
+    pitch_x: 101.6
+    pitch_y: 67.72
+  # https://www.avery.co.uk/template-l7173 and Word template, centred left
+  L7173:
+    also: [J8173]
+    page: A4
+    label: [99.06, 57]
+    columns: 2
+    rows: 5
+    top: 6
+    left: 4.67
+    pitch_x: 101.6
+    pitch_y: 57
+  # Avery US: https://www.avery.com/templates/5160 (lists 8160, 5260, 5960, 18160 as using this template)
+  # and its Word template (U-0087-01), centred left
+  '5160':
+    also: ['5260', '5960', '8160', '18160']
+    page: Letter
+    unit: in
+    label: [2.625, 1]
+    columns: 3
+    rows: 10
+    top: 0.5
+    left: 0.1875
+    pitch_x: 2.75
+    pitch_y: 1
+  # https://www.avery.com/templates/5163 and its Word template (U-0090-01), centred left
+  '5163':
+    also: ['8163']
+    page: Letter
+    unit: in
+    label: [4, 2]
+    columns: 2
+    rows: 5
+    top: 0.5
+    left: 0.15625
+    pitch_x: 4.1875
+    pitch_y: 2
+  # https://www.avery.com/templates/5167 and its Word template (U-0093-01), centred left.
+  # https://www.avery.com/templates/8927 links the same template file.
+  '5167':
+    also: ['8167', '8927']
+    page: Letter
+    unit: in
+    label: [1.75, 0.5]
+    columns: 4
+    rows: 20
+    top: 0.5
+    left: 0.3
+    pitch_x: 2.05
+    pitch_y: 0.5
+
+Avery Zweckform:
+  # https://www.avery-zweckform.com/vorlage-3475 and its Word template (6602/3490 use the identical template)
+  '3475':
+    also: ['3490', '6602']
+    page: A4
+    label: [70, 36]
+    columns: 3
+    rows: 8
+    top: 4.5
+    left: 0
+    pitch_x: 70
+    pitch_y: 36
+  # https://www.avery-zweckform.com/vorlage-3422 and its Word template, centred top
+  '3422':
+    page: A4
+    label: [70, 35]
+    columns: 3
+    rows: 8
+    top: 8.5
+    left: 0
+    pitch_x: 70
+    pitch_y: 35
+  # https://www.avery-zweckform.com/vorlage-3667 and its Word template, centred left
+  '3667':
+    page: A4
+    label: [48.5, 16.9]
+    columns: 4
+    rows: 16
+    top: 13.3
+    left: 8
+    pitch_x: 48.5
+    pitch_y: 16.9
+  # https://www.avery-zweckform.com/vorlage-4780 and its Word template, centred
+  '4780':
+    page: A4
+    label: [48.5, 25.4]
+    columns: 4
+    rows: 10
+    top: 21.5
+    left: 8
+    pitch_x: 48.5
+    pitch_y: 25.4
+
+HERMA:
+  # Die-cut drawing https://www.herma.de/fileadmin/Buero-Zuhause/downloads/Stanzvorlagen/4677_SV.pdf
+  '4677':
+    also: ['8632']
+    page: A4
+    label: [63.5, 38.1]
+    columns: 3
+    rows: 7
+    top: 15.15
+    left: 7.21
+    pitch_x: 66.04
+    pitch_y: 38.1
+  # Die-cut drawing .../Stanzvorlagen/4360_SV.pdf (left derived: 3 × 70 = 210)
+  '4360':
+    also: ['4414', '4453', '4633', '8638']
+    page: A4
+    label: [70, 36]
+    columns: 3
+    rows: 8
+    top: 4.5
+    left: 0
+    pitch_x: 70
+    pitch_y: 36
+  # Die-cut drawing .../Stanzvorlagen/4464_SV.pdf: 70 × 37.125, edge to edge (8 × 37.125 = 297)
+  '4464':
+    also: ['4390', '4406', '4407', '4408', '4409', '4466', '4467', '4468', '4469', '4615', '8644']
+    page: A4
+    label: [70, 37.125]
+    columns: 3
+    rows: 8
+    top: 0
+    left: 0
+    pitch_x: 70
+    pitch_y: 37.125
+  # Die-cut drawing .../Stanzvorlagen/4200_SV.pdf (pitch derived: no gaps)
+  '4200':
+    also: ['8643']
+    page: A4
+    label: [48.3, 33.87]
+    columns: 4
+    rows: 8
+    top: 13.02
+    left: 8.4
+    pitch_x: 48.3
+    pitch_y: 33.87
+
+Formtec:
+  # https://www.formtec.co.kr/bbs/board.php?bo_table=m04_06&wr_id=44 (table "워드 라벨 사이즈 정보", values in cm)
+  '3108':
+    page: A4
+    label: [99.1, 38.1]
+    columns: 2
+    rows: 7
+    top: 13.8
+    left: 5
+    pitch_x: 101.6
+    pitch_y: 38.1
+  # same source
+  '3107':
+    page: A4
+    label: [99.1, 33.9]
+    columns: 2
+    rows: 8
+    top: 14.2
+    left: 4.7
+    pitch_x: 101.6
+    pitch_y: 33.9
+  # same source
+  '3106':
+    page: A4
+    label: [64, 33.9]
+    columns: 3
+    rows: 8
+    top: 12.5
+    left: 6.5
+    pitch_x: 66.5
+    pitch_y: 33.9
+  # same source
+  '3100':
+    page: A4
+    label: [38.1, 21.2]
+    columns: 5
+    rows: 13
+    top: 10.7
+    left: 4.6
+    pitch_x: 40.6
+    pitch_y: 21.2
+
+OnlineLabels:
+  # https://www.onlinelabels.com/products/ol875wx (spec table; pitch = width + stated gap)
+  OL875:
+    page: Letter
+    unit: in
+    label: [2.5935, 1]
+    columns: 3
+    rows: 10
+    top: 0.5
+    left: 0.21975
+    pitch_x: 2.7335
+    pitch_y: 1
+  # https://www.onlinelabels.com/products/ol125wx (spec table; pitch = width + stated gap)
+  OL125:
+    page: Letter
+    unit: in
+    label: [4, 2]
+    columns: 2
+    rows: 5
+    top: 0.5
+    left: 0.18
+    pitch_x: 4.14
+    pitch_y: 2
+  # https://www.onlinelabels.com/products/ol25wx (spec table; pitch = width + stated gap)
+  OL25:
+    page: Letter
+    unit: in
+    label: [1.75, 0.5]
+    columns: 4
+    rows: 20
+    top: 0.5
+    left: 0.32812
+    pitch_x: 2.03125
+    pitch_y: 0.5
+
+APLI:
+  # Word template https://downloads.apli.com/templates/word/wp_01273 (from apli.com "plantillas" page); label = cell size,
+  # 8 × 37 = 296 mm, so the remaining 1 mm is split (template has the grid at the top edge)
+  '01273':
+    page: A4
+    label: [70, 37]
+    columns: 3
+    rows: 8
+    top: 0.5
+    left: 0
+    pitch_x: 70
+    pitch_y: 37
+  # Word template https://downloads.apli.com/templates/word/wp_01274, top centred as for 01273
+  '01274':
+    page: A4
+    label: [105, 37]
+    columns: 2
+    rows: 8
+    top: 0.5
+    left: 0
+    pitch_x: 105
+    pitch_y: 37
+  # Word template https://downloads.apli.com/templates/word/wp_01277, top centred (7 × 42.4 = 296.8)
+  '01277':
+    page: A4
+    label: [105, 42.4]
+    columns: 2
+    rows: 7
+    top: 0.1
+    left: 0
+    pitch_x: 105
+    pitch_y: 42.4
+  # Word template https://downloads.apli.com/templates/word/wp_01292
+  '01292':
+    page: A4
+    label: [105, 70]
+    columns: 2
+    rows: 4
+    top: 8.5
+    left: 0
+    pitch_x: 105
+    pitch_y: 70
+
+Sigel:
+  # Word template https://www.sigel-office.com/de/download_document?mid=244754 (LA138, A4 portrait);
+  # 8 × 37 = 296 mm, remaining 1 mm split (template has the grid at the top edge)
+  LA138:
+    page: A4
+    label: [70, 37]
+    columns: 3
+    rows: 8
+    top: 0.5
+    left: 0
+    pitch_x: 70
+    pitch_y: 37
+  # Word template https://www.sigel-office.com/download_document?mid=244707&langcode=de (LA106, A4 portrait)
+  LA106:
+    page: A4
+    label: [48.5, 25.4]
+    columns: 4
+    rows: 10
+    top: 21.5
+    left: 8
+    pitch_x: 48.5
+    pitch_y: 25.4
+
+A-One:
+  # Test print https://www.a-one.co.jp/img_pdf/ZT72212_A.pdf (format F12A4-1, label outlines in the PDF)
+  '72212':
+    page: A4
+    label: [86.4, 42.3]
+    columns: 2
+    rows: 6
+    top: 21.2
+    left: 18.6
+    pitch_x: 86.4
+    pitch_y: 42.3
+
+Pimaco:
+  # All values from Pimaco's print parameter table (in cm), linked on https://editor.pimaco.com.br/downloads/parametros:
+  # https://editor.pimaco.com.br/documents/parametros/inkjet_a4/params_inkjet_a4_especiais_word_2007.doc
+  # (columns: top margin, side margin, vertical pitch, horizontal pitch, label height, label width, columns, rows)
+  '6080':
+    also: ['6180', '6280', '62580']
+    page: Letter
+    label: [66.7, 25.4]
+    columns: 3
+    rows: 10
+    top: 12.7
+    left: 4.8
+    pitch_x: 69.8
+    pitch_y: 25.4
+  '6081':
+    also: ['6181', '6281', '62581']
+    page: Letter
+    label: [101.6, 25.4]
+    columns: 2
+    rows: 10
+    top: 12.7
+    left: 4
+    pitch_x: 106.8
+    pitch_y: 25.4
+  '6082':
+    also: ['6182', '6282', '62582']
+    page: Letter
+    label: [101.6, 33.9]
+    columns: 2
+    rows: 7
+    top: 21.2
+    left: 4
+    pitch_x: 106.8
+    pitch_y: 33.9
+  '6083':
+    also: ['6183', '6283']
+    page: Letter
+    label: [101.6, 50.8]
+    columns: 2
+    rows: 5
+    top: 12.7
+    left: 4
+    pitch_x: 106.8
+    pitch_y: 50.8
+  '6084':
+    also: ['6184', '6284']
+    page: Letter
+    label: [101.6, 84.7]
+    columns: 2
+    rows: 3
+    top: 12.7
+    left: 4
+    pitch_x: 106.8
+    pitch_y: 84.7
+  '6087':
+    also: ['6187', '6287']
+    page: Letter
+    label: [44.4, 12.7]
+    columns: 4
+    rows: 20
+    top: 12.7
+    left: 14.5
+    pitch_x: 47.5
+    pitch_y: 12.7
+  'A4048':
+    also: ['A4248', 'A4348']
+    page: A4
+    label: [31, 17]
+    columns: 6
+    rows: 16
+    top: 12.5
+    left: 7
+    pitch_x: 33
+    pitch_y: 17
+  'A4049':
+    also: ['A4249', 'A4349']
+    page: A4
+    label: [26, 15]
+    columns: 7
+    rows: 18
+    top: 13.5
+    left: 8
+    pitch_x: 28
+    pitch_y: 15
+  'A4051':
+    also: ['A4251', 'A4351']
+    page: A4
+    label: [38.2, 21.2]
+    columns: 5
+    rows: 13
+    top: 10.7
+    left: 4.5
+    pitch_x: 40.7
+    pitch_y: 21.2
+  'A4054':
+    also: ['A4254', 'A4354', 'A4054R']
+    page: A4
+    label: [99, 25.4]
+    columns: 2
+    rows: 11
+    top: 8.8
+    left: 4.7
+    pitch_x: 101.6
+    pitch_y: 25.4
+  'A4055':
+    also: ['A4255', 'A4355']
+    page: A4
+    label: [63.5, 31]
+    columns: 3
+    rows: 9
+    top: 9
+    left: 7.2
+    pitch_x: 66.1
+    pitch_y: 31
+  'A4056':
+    also: ['A4256', 'A4356', 'A4056R']
+    page: A4
+    label: [63.5, 25.4]
+    columns: 3
+    rows: 11
+    top: 8.8
+    left: 7.2
+    pitch_x: 66.1
+    pitch_y: 25.4
+  'A4060':
+    also: ['A4260', 'A4360']
+    page: A4
+    label: [63.5, 38.1]
+    columns: 3
+    rows: 7
+    top: 15.2
+    left: 7.2
+    pitch_x: 66.1
+    pitch_y: 38.1
+  'A4062':
+    also: ['A4262', 'A4362']
+    page: A4
+    label: [99, 33.9]
+    columns: 2
+    rows: 8
+    top: 12.9
+    left: 4.7
+    pitch_x: 101.6
+    pitch_y: 33.9
+  'A4063':
+    also: ['A4263', 'A4363', 'A4063R']
+    page: A4
+    label: [99, 38.1]
+    columns: 2
+    rows: 7
+    top: 15.2
+    left: 4.7
+    pitch_x: 101.6
+    pitch_y: 38.1

@@ -363,6 +363,23 @@ class User extends AttachmentContainingDBElement implements UserInterface, HasPe
     }
 
     /**
+     * Returns the next free label position on a partly used label sheet of the given type (see LabelSheetProvider::getPositionKey()).
+     */
+    public function getLabelSheetPosition(string $sheet): int
+    {
+        return (int) ($this->settings['label_sheet_positions'][$sheet] ?? 0);
+    }
+
+    public function setLabelSheetPosition(string $sheet, int $position): self
+    {
+        $settings = $this->settings ?? [];
+        $settings['label_sheet_positions'][$sheet] = $position;
+        $this->settings = $settings;
+
+        return $this;
+    }
+
+    /**
      * A visual identifier that represents this user.
      *
      * @see UserInterface
