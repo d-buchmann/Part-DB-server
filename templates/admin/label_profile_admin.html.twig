@@ -39,6 +39,7 @@
             </div>
         </div>
     </div>
+    {% include "label_system/_sheet_options.html.twig" with {options: form.options} %}
     {{ form_row(form.options.barcode_type) }}
     {{ form_row(form.options.lines) }}
 {% endblock %}

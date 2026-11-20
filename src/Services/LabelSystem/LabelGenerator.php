@@ -53,7 +53,8 @@ final class LabelGenerator
     public const MM_TO_POINTS_FACTOR = 2.83465;
 
     public function __construct(private readonly LabelHTMLGenerator $labelHTMLGenerator,
-        private readonly DompdfFactoryInterface $dompdfFactory)
+        private readonly DompdfFactoryInterface $dompdfFactory,
+        private readonly LabelSheetProvider $sheetProvider)
     {
     }
 
@@ -73,7 +74,8 @@ final class LabelGenerator
         }
 
         $dompdf = $this->dompdfFactory->create();
-        $dompdf->setPaper($this->mmToPointsArray($options->getWidth(), $options->getHeight()));
+        [$width, $height] = $this->sheetProvider->getLayout($options)['page'] ?? [$options->getWidth(), $options->getHeight()];
+        $dompdf->setPaper($this->mmToPointsArray($width, $height));
         $dompdf->loadHtml($this->labelHTMLGenerator->getLabelHTML($options, $elements));
         $dompdf->render();
 

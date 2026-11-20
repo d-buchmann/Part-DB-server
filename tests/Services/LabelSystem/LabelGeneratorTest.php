@@ -112,4 +112,21 @@ final class LabelGeneratorTest extends WebTestCase
         //Just a simple check if a PDF is returned
         $this->assertStringStartsWith('%PDF-', $pdf);
     }
+
+    public function testGenerateSheet(): void
+    {
+        $part = new Part();
+        $options = new LabelOptions();
+        $options->setLines('Test');
+        $options->setSupportedElement(LabelSupportedElement::PART);
+        $options->setGridColumns(2)->setGridRows(2)->setPageWidth(210)->setPageHeight(297);
+        //3 of 4 positions on the first sheet are used, so 3 labels need two sheets
+        $options->setSkipCount(3);
+
+        $pdf = $this->service->generateLabel($options, [$part, $part, $part]);
+
+        $this->assertSame(2, preg_match_all('#/Type\s*/Page\b#', $pdf));
+        //A4 in points
+        $this->assertMatchesRegularExpression('#/MediaBox\s*\[\s*0\.?0* 0\.?0* 595\.27#', $pdf);
+    }
 }

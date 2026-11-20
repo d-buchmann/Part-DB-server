@@ -105,6 +105,72 @@ class LabelOptionsType extends AbstractType
             ],
         ]);
 
+        $builder->add('page_width', NumberType::class, [
+            'label' => 'label_options.sheet.page_size',
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.width.placeholder',
+                'title' => 'label_options.width.placeholder',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('page_height', NumberType::class, [
+            'label' => false,
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.height.placeholder',
+                'title' => 'label_options.height.placeholder',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('margin_top', NumberType::class, [
+            'label' => 'label_options.sheet.margins',
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.sheet.margin_top',
+                'title' => 'label_options.sheet.margin_top',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('margin_left', NumberType::class, [
+            'label' => false,
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.sheet.margin_left',
+                'title' => 'label_options.sheet.margin_left',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('horizontal_pitch', NumberType::class, [
+            'label' => 'label_options.sheet.pitch',
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.sheet.horizontal_pitch',
+                'title' => 'label_options.sheet.horizontal_pitch',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
+        $builder->add('vertical_pitch', NumberType::class, [
+            'label' => false,
+            'html5' => true,
+            'attr' => [
+                'placeholder' => 'label_options.sheet.vertical_pitch',
+                'title' => 'label_options.sheet.vertical_pitch',
+                'min' => 0,
+                'step' => 'any',
+            ],
+        ]);
+
         $builder->add('skip_count', NumberType::class, [
             'label' => 'label_options.page_nup.skip_label',
             'html5' => true,

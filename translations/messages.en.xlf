@@ -15110,5 +15110,83 @@ Buerklin-API Authentication server:
         <target>Edit BOM entry #%id% of project</target>
       </segment>
     </unit>
+    <unit id="n3SqWpP" name="label_options.page_nup.grid">
+      <segment state="translated">
+        <source>label_options.page_nup.grid</source>
+        <target>Labels per sheet (columns × rows)</target>
+      </segment>
+    </unit>
+    <unit id="FikUO1g" name="label_options.page_nup.columns">
+      <segment state="translated">
+        <source>label_options.page_nup.columns</source>
+        <target>Columns</target>
+      </segment>
+    </unit>
+    <unit id="fzbCzHU" name="label_options.page_nup.rows">
+      <segment state="translated">
+        <source>label_options.page_nup.rows</source>
+        <target>Rows</target>
+      </segment>
+    </unit>
+    <unit id="IIZuqvx" name="label_options.page_nup.skip_label">
+      <segment state="translated">
+        <source>label_options.page_nup.skip_label</source>
+        <target>Skip</target>
+      </segment>
+    </unit>
+    <unit id="CkfK4.7" name="label_options.page_nup.skip_placeholder">
+      <segment state="translated">
+        <source>label_options.page_nup.skip_placeholder</source>
+        <target>Already used positions</target>
+      </segment>
+    </unit>
+    <unit id="xe973Zw" name="label_options.sheet.page_size">
+      <segment state="translated">
+        <source>label_options.sheet.page_size</source>
+        <target>Sheet size</target>
+      </segment>
+    </unit>
+    <unit id="9fO5wof" name="label_options.sheet.margins">
+      <segment state="translated">
+        <source>label_options.sheet.margins</source>
+        <target>Sheet margin (top × left)</target>
+      </segment>
+    </unit>
+    <unit id="6Gs_ucP" name="label_options.sheet.margin_top">
+      <segment state="translated">
+        <source>label_options.sheet.margin_top</source>
+        <target>Top</target>
+      </segment>
+    </unit>
+    <unit id="q83G7WE" name="label_options.sheet.margin_left">
+      <segment state="translated">
+        <source>label_options.sheet.margin_left</source>
+        <target>Left</target>
+      </segment>
+    </unit>
+    <unit id="UL.h.lc" name="label_options.sheet.pitch">
+      <segment state="translated">
+        <source>label_options.sheet.pitch</source>
+        <target>Label pitch (horizontal × vertical)</target>
+      </segment>
+    </unit>
+    <unit id="T1s52NI" name="label_options.sheet.horizontal_pitch">
+      <segment state="translated">
+        <source>label_options.sheet.horizontal_pitch</source>
+        <target>Horizontal</target>
+      </segment>
+    </unit>
+    <unit id="s7xMFPn" name="label_options.sheet.vertical_pitch">
+      <segment state="translated">
+        <source>label_options.sheet.vertical_pitch</source>
+        <target>Vertical</target>
+      </segment>
+    </unit>
+    <unit id="s14zCiY" name="label_options.sheet.help">
+      <segment state="translated">
+        <source>label_options.sheet.help</source>
+        <target>Pitch is the distance from the edge of one label to the same edge of the next one (label size plus gap). With one label per sheet and all values 0, every label is its own page of the label size (label printers). A sheet size or pitch of 0 is calculated from the label size.</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
