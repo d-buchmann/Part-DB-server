@@ -116,4 +116,19 @@ final class LabelSheetProviderTest extends TestCase
         $this->assertSame([[5.0, 0.0], [55.0, 0.0]], $layout['slots']);
         $this->assertSame([110.0, 30.0], $layout['page']);
     }
+
+    public function testPositionKey(): void
+    {
+        $provider = $this->provider();
+
+        //Single labels have no sheet position
+        $this->assertNull($provider->getPositionKey(new LabelOptions()));
+        $this->assertSame('Avery/L7160', $provider->getPositionKey((new LabelOptions())->setSheet('Avery/L7160')));
+        $this->assertSame('custom:2x5', $provider->getPositionKey((new LabelOptions())->setGridColumns(2)->setGridRows(5)));
+
+        $this->assertTrue($provider->isValidPositionKey('Avery/L7160'));
+        $this->assertTrue($provider->isValidPositionKey('custom:2x5'));
+        $this->assertFalse($provider->isValidPositionKey('Avery/nope'));
+        $this->assertFalse($provider->isValidPositionKey('custom:2x5; drop'));
+    }
 }

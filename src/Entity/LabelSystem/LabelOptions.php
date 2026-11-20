@@ -179,6 +179,13 @@ class LabelOptions
     protected string $lines = '';
 
     /**
+     * @var bool Remember (per user and sheet type) where the next free label position is, and start there next time
+     */
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    #[Groups(["extended", "full", "import"])]
+    protected bool $remember_position = false;
+
+    /**
      * @var int The number of leading empty labels in a grid arrangement
      * This does not need to be persisted, but can be passed to the label generator as an option
      */
@@ -313,6 +320,18 @@ class LabelOptions
     public function setVerticalPitch(float $vertical_pitch): self
     {
         $this->vertical_pitch = $vertical_pitch;
+
+        return $this;
+    }
+
+    public function isRememberPosition(): bool
+    {
+        return $this->remember_position;
+    }
+
+    public function setRememberPosition(bool $remember_position): self
+    {
+        $this->remember_position = $remember_position;
 
         return $this;
     }

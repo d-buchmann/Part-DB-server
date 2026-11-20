@@ -50,6 +50,7 @@ use App\Entity\LabelSystem\LabelOptions;
 use App\Form\Type\RichTextEditorType;
 use App\Form\Type\TwigCodeEditorType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -217,6 +218,12 @@ class LabelOptionsType extends AbstractType
                 'min' => 0,
                 'step' => 1,
             ],
+        ]);
+
+        $builder->add('remember_position', CheckboxType::class, [
+            'label' => 'label_options.sheet.remember_position',
+            'help' => 'label_options.sheet.remember_position.help',
+            'required' => false,
         ]);
 
         $builder->add('supported_element', EnumType::class, [

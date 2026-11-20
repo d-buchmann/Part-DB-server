@@ -20,5 +20,16 @@
             </div>
         {% endfor %}
     </div>
-    {{ form_row(options.skip_count) }}
+    {% if dialog ?? false %}
+        <div class="mb-2 row" {{ stimulus_controller('pages/label_sheet_position') }}>
+            {{ form_label(options.skip_count) }}
+            <div class="{{ col_input }}">
+                <div class="input-group">
+                    {{ form_widget(options.skip_count, {attr: {'data-pages--label-sheet-position-target': 'skip'}}) }}
+                    <button type="button" class="btn btn-outline-secondary" {{ stimulus_action('pages/label_sheet_position', 'newSheet') }}>{% trans %}label_options.sheet.new_sheet{% endtrans %}</button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {{ form_row(options.remember_position) }}
 </div>

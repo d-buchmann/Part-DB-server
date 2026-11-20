@@ -34,7 +34,7 @@
             {{ form_row(form.target_id) }}
 
             {{ form_row(form.options.supported_element) }}
-            {% include "label_system/_sheet_options.html.twig" with {options: form.options} %}
+            {% include "label_system/_sheet_options.html.twig" with {options: form.options, dialog: true} %}
             {{ form_row(form.options.barcode_type) }}
             {{ form_row(form.options.lines) }}
         </div>
@@ -112,7 +112,16 @@
     {% if pdf_data %}
         <div class="row">
             <div class="{{ col_input }} {{ offset_label }}">
-                <a data-turbo="false" class="btn btn-secondary" href="#" {{ stimulus_controller('pages/label_download_btn')}} {{ stimulus_action('pages/label_download_btn', 'download')}} download="{{ filename ?? '' }}">
+                {# With a remembered sheet position, the download also saves where the next label goes #}
+                <a data-turbo="false" class="btn btn-secondary" href="#"
+                   {{ sheet_position
+                       ? stimulus_controller('pages/label_download_btn')|stimulus_controller('pages/label_sheet_position', {
+                           url: path('label_sheet_position'), token: csrf_token('label_sheet_position'),
+                           sheet: sheet_position.key, position: sheet_position.next})
+                       : stimulus_controller('pages/label_download_btn') }}
+                   {{ sheet_position
+                       ? stimulus_action('pages/label_download_btn', 'download')|stimulus_action('pages/label_sheet_position', 'save')
+                       : stimulus_action('pages/label_download_btn', 'download') }} download="{{ filename ?? '' }}">
                     {% trans %}label_generator.download{% endtrans %}
                 </a>
             </div>

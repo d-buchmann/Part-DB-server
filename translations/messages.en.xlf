@@ -15206,5 +15206,23 @@ Buerklin-API Authentication server:
         <target>Pre-cut label sheets for office printers (search by product code or size). A selected sheet sets the label size and the sheet values below.</target>
       </segment>
     </unit>
+    <unit id="yLsF2WA" name="label_options.sheet.remember_position">
+      <segment state="translated">
+        <source>label_options.sheet.remember_position</source>
+        <target>Remember the next free position</target>
+      </segment>
+    </unit>
+    <unit id="wSUNDrJ" name="label_options.sheet.remember_position.help">
+      <segment state="translated">
+        <source>label_options.sheet.remember_position.help</source>
+        <target>For label sheets: when you download labels, Part-DB remembers where the next free label is (per user and sheet type) and starts there next time.</target>
+      </segment>
+    </unit>
+    <unit id="Ea4UJNF" name="label_options.sheet.new_sheet">
+      <segment state="translated">
+        <source>label_options.sheet.new_sheet</source>
+        <target>New sheet</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

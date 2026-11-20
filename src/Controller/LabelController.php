@@ -46,11 +46,13 @@ use App\Entity\LabelSystem\LabelOptions;
 use App\Entity\LabelSystem\LabelProcessMode;
 use App\Entity\LabelSystem\LabelProfile;
 use App\Entity\LabelSystem\LabelSupportedElement;
+use App\Entity\UserSystem\User;
 use App\Exceptions\TwigModeException;
 use App\Form\LabelSystem\LabelDialogType;
 use App\Repository\DBElementRepository;
 use App\Services\ElementTypeNameGenerator;
 use App\Services\LabelSystem\LabelGenerator;
+use App\Services\LabelSystem\LabelSheetProvider;
 use App\Services\Misc\RangeParser;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -65,7 +67,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class LabelController extends AbstractController
 {
     public function __construct(protected LabelGenerator $labelGenerator, protected EntityManagerInterface $em, protected ElementTypeNameGenerator $elementTypeNameGenerator, protected RangeParser $rangeParser, protected TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly LabelSheetProvider $sheetProvider,
     )
     {
     }
@@ -103,6 +106,13 @@ class LabelController extends AbstractController
             $form['target_id']->setData($target_id);
         }
 
+        //Continue on a partly used sheet where the user stopped last time
+        $user = $this->getUser();
+        $position_key = $label_options->isRememberPosition() ? $this->sheetProvider->getPositionKey($label_options) : null;
+        if ($position_key !== null && $user instanceof User) {
+            $label_options->setSkipCount($user->getLabelSheetPosition($position_key));
+        }
+
         $form['options']->setData($label_options);
         $form->handleRequest($request);
 
@@ -111,6 +121,7 @@ class LabelController extends AbstractController
 
         $pdf_data = null;
         $filename = 'invalid.pdf';
+        $sheet_position = null;
 
         if (($form->isSubmitted() && $form->isValid()) || ($generate && !$form->isSubmitted() && $profile instanceof LabelProfile)) {
 
@@ -186,6 +197,16 @@ class LabelController extends AbstractController
                 try {
                     $pdf_data = $this->labelGenerator->generateLabel($form_options, $targets);
                     $filename = $this->getLabelName($targets[0], $profile);
+
+                    //Where the next label goes; saved when the user downloads the labels
+                    $position_key = $form_options->isRememberPosition() ? $this->sheetProvider->getPositionKey($form_options) : null;
+                    $layout = $this->sheetProvider->getLayout($form_options);
+                    if ($position_key !== null && $layout !== null) {
+                        $sheet_position = [
+                            'key' => $position_key,
+                            'next' => (max(0, $form_options->getSkipCount()) + count($targets)) % count($layout['slots']),
+                        ];
+                    }
                 } catch (TwigModeException $exception) {
                     $form->get('options')->get('lines')->addError(new FormError($exception->getSafeMessage()));
                 }
@@ -208,7 +229,33 @@ class LabelController extends AbstractController
             'pdf_data' => $pdf_data,
             'filename' => $filename,
             'profile' => $profile,
+            'sheet_position' => $sheet_position,
         ]);
+    }
+
+    /**
+     * Saves the next free position on a partly used label sheet for the current user (called when labels are downloaded).
+     */
+    #[Route(path: '/sheet_position', name: 'label_sheet_position', methods: ['POST'])]
+    public function saveSheetPosition(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('@labels.create_labels');
+        if (!$this->isCsrfTokenValid('label_sheet_position', $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token');
+        }
+
+        $sheet = $request->request->getString('sheet');
+        if (!$this->sheetProvider->isValidPositionKey($sheet)) {
+            throw $this->createNotFoundException('Unknown label sheet');
+        }
+
+        $user = $this->getUser();
+        if ($user instanceof User) {
+            $user->setLabelSheetPosition($sheet, max(0, $request->request->getInt('position')));
+            $this->em->flush();
+        }
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 
     protected function getLabelName(AbstractDBElement $element, ?LabelProfile $profile = null): string

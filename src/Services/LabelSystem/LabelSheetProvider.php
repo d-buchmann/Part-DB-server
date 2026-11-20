@@ -155,6 +155,26 @@ final class LabelSheetProvider
     }
 
     /**
+     * Identifies the kind of sheet for remembering the next free position on a partly used sheet:
+     * the built-in sheet key, "custom:<columns>x<rows>" for custom sheets, or null in single label mode.
+     */
+    public function getPositionKey(LabelOptions $options): ?string
+    {
+        if ($this->getLayout($options) === null) {
+            return null;
+        }
+
+        return $this->getSheet($options->getSheet()) !== null
+            ? $options->getSheet()
+            : sprintf('custom:%dx%d', $options->getGridColumns(), $options->getGridRows());
+    }
+
+    public function isValidPositionKey(string $key): bool
+    {
+        return $this->getSheet($key) !== null || preg_match('/^custom:\d{1,4}x\d{1,4}$/', $key) === 1;
+    }
+
+    /**
      * @param  array{columns: int, rows: int, left: float, top: float, pitch_x: float, pitch_y: float}  $grid
      * @return list<array{float, float}>
      */

@@ -33,6 +33,17 @@ use Webauthn\TrustPath\EmptyTrustPath;
 
 final class UserTest extends TestCase
 {
+    public function testLabelSheetPosition(): void
+    {
+        $user = new User();
+        $this->assertSame(0, $user->getLabelSheetPosition('Avery/L7160'));
+
+        $user->setLabelSheetPosition('Avery/L7160', 5);
+        $user->setLabelSheetPosition('custom:2x5', 3);
+        $this->assertSame(5, $user->getLabelSheetPosition('Avery/L7160'));
+        $this->assertSame(3, $user->getLabelSheetPosition('custom:2x5'));
+    }
+
     public function testGetFullName(): void
     {
         $user = new User();
